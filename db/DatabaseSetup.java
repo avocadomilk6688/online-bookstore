@@ -1,4 +1,4 @@
-package db;
+package com.bookstore.online_bookstore.db;
 
 public class DatabaseSetup {
 

@@ -1,4 +1,4 @@
-package db;
+package com.bookstore.online_bookstore.db;
 
 import java.sql.*;
 

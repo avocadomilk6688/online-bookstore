@@ -1,6 +1,6 @@
 package Pricing;
 
-import db.DatabaseManager;
+import com.bookstore.online_bookstore.db.DatabaseManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
