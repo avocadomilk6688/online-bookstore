@@ -52,14 +52,18 @@ public class DatabaseSetup {
         db.executeUpdate("""
             CREATE TABLE IF NOT EXISTS books (
                 isbn TEXT PRIMARY KEY,
+                coverImageUrl TEXT,
                 title TEXT NOT NULL,
                 author TEXT NOT NULL,
-                genre TEXT NOT NULL,
-                description TEXT,
                 price REAL NOT NULL,
-                stock INTEGER NOT NULL,
-                publishDate DATE,
-                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+                publisher TEXT,
+                publicationYear INTEGER,
+                language TEXT,
+                pageCount INTEGER,
+                type TEXT,
+                genre TEXT,
+                status TEXT,
+                isPromo INTEGER DEFAULT 0
             )
         """);
     }
