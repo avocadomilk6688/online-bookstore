@@ -12,6 +12,7 @@ public class Book {
     private String coverImageUrl;
     private String title;
     private String author;
+    private double price;
     private String publisher;
     private int publicationYear;
     public String language;
@@ -21,12 +22,16 @@ public class Book {
     public String status;
     public boolean isPromo;
 
-    public Book(String isbn, String coverImageUrl, String title, String author, String publisher, int publicationYear,
+    public Book() {}
+
+    public Book(String isbn, String coverImageUrl, String title, String author, double price, String publisher,
+            int publicationYear,
             String language, int pageCount, String type, String genre) {
         this.isbn = isbn;
         this.title = title;
         this.coverImageUrl = coverImageUrl;
         this.author = author;
+        this.price = price;
         this.publisher = publisher;
         this.publicationYear = publicationYear;
         this.language = language;
@@ -52,6 +57,10 @@ public class Book {
 
     public String getAuthor() {
         return author;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     public String getPublisher() {
@@ -97,6 +106,10 @@ public class Book {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public void setPublisher(String publisher) {
@@ -168,6 +181,7 @@ public class Book {
                 rs.getString("coverImageUrl"),
                 rs.getString("title"),
                 rs.getString("author"),
+                rs.getDouble("price"),
                 rs.getString("publisher"),
                 rs.getInt("publicationYear"),
                 rs.getString("language"),
