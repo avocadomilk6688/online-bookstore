@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6; /* Light gray background */
+        }
+        /* Header Navigation - Dark Blue Theme */
+        .nav-header {
+            background-color: #0056b3; /* Deep Blue */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .nav-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        /* Content Container */
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+            border-top: 4px solid #0056b3;
+        }
+
+        /* Table Style */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #0056b3; /* Dark Blue Header */
+            color: white;
+            text-align: left;
+            padding: 12px;
+            font-weight: bold;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        h3 {
+            color: #0056b3;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="nav-header">
+    <div class="nav-title">Categories</div>
+    <div class="nav-links">
+        <a href="/books?category=Non Fiction" class="nav-link">Non Fiction</a>
+        <a href="/books?category=Fiction" class="nav-link">Fiction</a>
+        <a href="/books?category=Novel" class="nav-link">Novel</a>
+        <a href="/books?category=Comic" class="nav-link">Comic</a>
+        <a href="/admin/dashboard" class="nav-link">Dashboard ></a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+    <h3>Admin Dashboard</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>System Logs</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${adminLogs == null or #lists.isEmpty(adminLogs)}">
+                <td>No system logs found.</td>
+            </tr>
+            <tr th:each="log : ${adminLogs}">
+                <td th:text="${log}"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 20px;">
+        <a href="/books" style="color: #0056b3; font-weight: bold; text-decoration: none;">&larr; Back to Home</a>
+    </div>
+</div>
+
+</body>
+</html>

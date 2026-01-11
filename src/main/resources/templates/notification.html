@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6; /* Light gray background */
+        }
+        /* Header Navigation - Dark Blue Theme */
+        .nav-header {
+            background-color: #0056b3; /* Deep Blue */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        .nav-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-link {
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        /* Content Container */
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            border-top: 4px solid #0056b3;
+        }
+
+        /* Notification Items */
+        .notification-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eeeeee;
+            font-size: 15px;
+            color: #333;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Primary Blue Button */
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 25px;
+            background-color: #007bff; /* Bright Blue */
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            font-weight: bold;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .btn-action:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="nav-header">
+    <div class="nav-title">Categories</div>
+    <div class="nav-links">
+        <a href="/books?category=Non Fiction" class="nav-link">Non Fiction</a>
+        <a href="/books?category=Fiction" class="nav-link">Fiction</a>
+        <a href="/books?category=Novel" class="nav-link">Novel</a>
+        <a href="/books?category=Comic" class="nav-link">Comic</a>
+        <a href="/profile" class="nav-link">Profile ></a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+    <h3 style="color: #0056b3; margin-top: 0;">Notifications</h3>
+
+    <div th:if="${notifications == null or #lists.isEmpty(notifications)}">
+        <p style="color: #666;">No new notifications.</p>
+    </div>
+
+    <div th:each="note : ${notifications}" class="notification-item">
+        <p th:text="${note}"></p>
+    </div>
+
+    <a href="/books" class="btn-action">CONTINUE SHOPPING</a>
+</div>
+
+</body>
+</html>
