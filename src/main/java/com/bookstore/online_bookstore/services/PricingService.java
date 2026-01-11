@@ -1,145 +1,170 @@
 package com.bookstore.online_bookstore.services;
 
 import com.bookstore.online_bookstore.db.DatabaseManager;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class PricingService {
 
-    private final DatabaseManager db;
+    // ============================================================
+    // CONTEXT LOGIC
+    // ============================================================
+    private final List<DiscountStrategy> strategies;
 
     public PricingService() {
-        this.db = DatabaseManager.getInstance();
+        this.strategies = new ArrayList<>();
+        
+        // Register all available strategies here
+        strategies.add(new PremiumDiscountStrategy());
+        strategies.add(new StudentDiscountStrategy());
+        strategies.add(new GenreDiscountStrategy());
+        strategies.add(new BundleDiscountStrategy());
     }
 
-    // ============================================================
-    // MAIN PRICE CALCULATION
-    // ============================================================
     public double calculateFinalPrice(
             int userID,
             double subtotal,
             String memberType,
             Map<String, Integer> cartItems
     ) {
-
         double bestDiscount = 0.0;
 
-        bestDiscount = Math.max(bestDiscount,
-                getPremiumDiscount(subtotal, memberType));
+        System.out.println("Calculating price for User: " + userID + " | Member: " + memberType);
 
-        bestDiscount = Math.max(bestDiscount,
-                getStudentDiscount(subtotal, userID));
-
-        bestDiscount = Math.max(bestDiscount,
-                getGenreDiscount(subtotal, cartItems));
-
-        bestDiscount = Math.max(bestDiscount,
-                getBundleDiscount(subtotal, cartItems));
+        // Iterate through every strategy and pick the best discount
+        for (DiscountStrategy strategy : strategies) {
+            double currentDiscount = strategy.calculate(subtotal, userID, memberType, cartItems);
+            
+            if (currentDiscount > bestDiscount) {
+                bestDiscount = currentDiscount;
+                System.out.println(" -> Applied: " + strategy.getClass().getSimpleName() + " (Discount: " + currentDiscount + ")");
+            }
+        }
 
         return subtotal - bestDiscount;
     }
 
     // ============================================================
-    // PREMIUM MEMBER DISCOUNT
+    // STRATEGY PATTERN IMPLEMENTATION (Nested Classes)
     // ============================================================
-    private double getPremiumDiscount(double subtotal, String memberType) {
-        if (!"PREMIUM".equalsIgnoreCase(memberType)) return 0.0;
-        return getPercentageDiscount("PREMIUM_MEMBER", null, subtotal);
+
+    // 1. The Strategy Interface
+    public interface DiscountStrategy {
+        double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems);
     }
 
-    // ============================================================
-    // STUDENT DISCOUNT (AGE 7–24)
-    // ============================================================
-    private double getStudentDiscount(double subtotal, int userID) {
-        if (!isStudentByAge(userID)) return 0.0;
-        return getPercentageDiscount("STUDENT", null, subtotal);
-    }
+    // 2. Concrete Strategy: Premium Member
+    public static class PremiumDiscountStrategy implements DiscountStrategy {
 
-    private boolean isStudentByAge(int userID) {
+        @Override
+        public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
+            if (!"PREMIUM".equalsIgnoreCase(memberType)) return 0.0;
 
-        ResultSet rs = db.executeQuery(
-                "SELECT birthDate FROM users WHERE userID = ?", userID
-        );
-
-        try {
-            if (rs != null && rs.next()) {
-                LocalDate birth = rs.getDate("birthDate").toLocalDate();
-                int age = Period.between(birth, LocalDate.now()).getYears();
-                return age >= 7 && age <= 24;
+            DatabaseManager db = DatabaseManager.getInstance();
+            
+            String sql = "SELECT percentage FROM discounts WHERE discountType = 'PREMIUM_MEMBER' AND active = 1";
+            
+            try (ResultSet rs = db.executeQuery(sql)) {
+                if (rs != null && rs.next()) {
+                    double percent = rs.getDouble("percentage");
+                    return subtotal * (percent / 100.0);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error calculating Premium discount: " + e.getMessage());
             }
-        } catch (Exception ignored) {}
-
-        return false;
-    }
-
-    // ============================================================
-    // GENRE DISCOUNT
-    // ============================================================
-    private double getGenreDiscount(double subtotal, Map<String, Integer> cartItems) {
-
-        double maxDiscount = 0.0;
-
-        for (String isbn : cartItems.keySet()) {
-            String genre = getBookGenre(isbn);
-            if (genre == null) continue;
-
-            double discount = getPercentageDiscount(
-                    "BOOK_GENRE", genre, subtotal
-            );
-
-            maxDiscount = Math.max(maxDiscount, discount);
+            return 0.0;
         }
     }
 
-    // ============================================================
-    // BUNDLE DISCOUNT (≥ 3 BOOKS)
-    // ============================================================
-    private double getBundleDiscount(double subtotal, Map<String, Integer> cartItems) {
+    // 3. Concrete Strategy: Student (Age 7-24)
+    public static class StudentDiscountStrategy implements DiscountStrategy {
 
-        int totalBooks = cartItems.values().stream().mapToInt(i -> i).sum();
-        if (totalBooks < 3) return 0.0;
+        @Override
+        public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
+            DatabaseManager db = DatabaseManager.getInstance();
 
-        return getPercentageDiscount("BUNDLE", null, subtotal);
-    }
+            String userSql = "SELECT birthDate FROM users WHERE userID = ?";
+            try (ResultSet rs = db.executeQuery(userSql, userID)) {
+                if (rs != null && rs.next()) {
+                    LocalDate birth = rs.getDate("birthDate").toLocalDate();
+                    int age = Period.between(birth, LocalDate.now()).getYears();
 
-    // ============================================================
-    // CORE DISCOUNT FETCH
-    // ============================================================
-    private double getPercentageDiscount(
-            String discountType,
-            String targetValue,
-            double subtotal
-    ) {
-
-        ResultSet rs = db.executeQuery("""
-            SELECT percentage FROM discounts
-            WHERE discountType = ?
-            AND active = 1
-            AND (targetValue IS NULL OR targetValue = ?)
-        """, discountType, targetValue);
-
-        try {
-            if (rs != null && rs.next()) {
-                return subtotal * (rs.getDouble("percentage") / 100.0);
+                    if (age >= 7 && age <= 24) {
+                        String discSql = "SELECT percentage FROM discounts WHERE discountType = 'STUDENT' AND active = 1";
+                        try (ResultSet rsDisc = db.executeQuery(discSql)) {
+                            if (rsDisc != null && rsDisc.next()) {
+                                double percent = rsDisc.getDouble("percentage");
+                                return subtotal * (percent / 100.0);
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Error calculating Student discount: " + e.getMessage());
             }
-        } catch (SQLException ignored) {}
-
-        return 0.0;
+            return 0.0;
+        }
     }
 
-    private String getBookGenre(String isbn) {
+    // 4. Concrete Strategy: Genre Based
+    public static class GenreDiscountStrategy implements DiscountStrategy {
 
-        ResultSet rs = db.executeQuery(
-                "SELECT genre FROM books WHERE isbn = ?", isbn
-        );
+        @Override
+        public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
+            DatabaseManager db = DatabaseManager.getInstance();
+            double maxDiscount = 0.0;
 
-        try {
-            return (rs != null && rs.next()) ? rs.getString("genre") : null;
-        } catch (SQLException e) {
-            return null;
+            for (String isbn : cartItems.keySet()) {
+                String bookSql = "SELECT genre FROM books WHERE isbn = ?";
+                try (ResultSet rsBook = db.executeQuery(bookSql, isbn)) {
+                    if (rsBook != null && rsBook.next()) {
+                        String genre = rsBook.getString("genre");
+                        if (genre == null) continue;
+
+                        String discSql = "SELECT percentage FROM discounts WHERE discountType = 'BOOK_GENRE' AND targetValue = ? AND active = 1";
+                        try (ResultSet rsDisc = db.executeQuery(discSql, genre)) {
+                            if (rsDisc != null && rsDisc.next()) {
+                                double percent = rsDisc.getDouble("percentage");
+                                double currentVal = subtotal * (percent / 100.0);
+                                maxDiscount = Math.max(maxDiscount, currentVal);
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    System.err.println("Error calculating Genre discount: " + e.getMessage());
+                }
+            }
+            return maxDiscount;
+        }
+    }
+
+    // 5. Concrete Strategy: Bundle (3+ items)
+    public static class BundleDiscountStrategy implements DiscountStrategy {
+
+        @Override
+        public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
+            int totalBooks = cartItems.values().stream().mapToInt(i -> i).sum();
+            
+            if (totalBooks < 3) return 0.0;
+
+            DatabaseManager db = DatabaseManager.getInstance();
+            
+            String sql = "SELECT percentage FROM discounts WHERE discountType = 'BUNDLE' AND active = 1";
+            try (ResultSet rs = db.executeQuery(sql)) {
+                if (rs != null && rs.next()) {
+                    double percent = rs.getDouble("percentage");
+                    return subtotal * (percent / 100.0);
+                }
+            } catch (SQLException e) {
+                System.err.println("Error calculating Bundle discount: " + e.getMessage());
+            }
+            return 0.0;
         }
     }
 }
