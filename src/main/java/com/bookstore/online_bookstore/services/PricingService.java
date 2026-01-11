@@ -92,8 +92,6 @@ public class PricingService {
 
             maxDiscount = Math.max(maxDiscount, discount);
         }
-
-        return maxDiscount;
     }
 
     // ============================================================
