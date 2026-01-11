@@ -39,8 +39,8 @@ public class DatabaseSetup {
         db.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS users (
                         userID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        email TEXT UNIQUE,
-                        password TEXT,
+                        email TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
                         role TEXT CHECK(role IN ('ADMIN','GUEST','MEMBER')) NOT NULL,
                         memberType TEXT CHECK(memberType IN ('STANDARD','PREMIUM')),
                         birthDate DATE,
