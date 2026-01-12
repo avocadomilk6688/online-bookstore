@@ -12,18 +12,22 @@ import java.util.List;
 @Controller
 public class BookController {
     @GetMapping("/catalog")
-    public String viewBooks(@RequestParam(value = "genre", required = false) String genre, Model model) {
+    public String viewBooks(
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "search", required = false) String search,
+            Model model) {
+
         Book bookHelper = new Book();
         List<Book> displayBooks;
 
-        if (genre != null && !genre.isEmpty()) {
-            System.out.println("🔍 Genre Clicked: " + genre);
-            displayBooks = bookHelper.getBooksByGenre(genre); // Use the new method
+        if (search != null && !search.isEmpty()) {
+            displayBooks = bookHelper.searchBooks(search);
+        } else if (genre != null && !genre.isEmpty() && !genre.equalsIgnoreCase("All")) {
+            displayBooks = bookHelper.getBooksByGenre(genre);
         } else {
             displayBooks = bookHelper.getAllBooks();
         }
 
-        System.out.println("📦 Books found: " + (displayBooks != null ? displayBooks.size() : 0));
         model.addAttribute("books", displayBooks);
         return "catalog";
     }
