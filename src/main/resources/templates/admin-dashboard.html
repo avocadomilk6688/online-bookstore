@@ -124,6 +124,44 @@
             font-family: 'Georgia', serif;
         }
 
+        .form-field input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .form-field input[type="file"]::file-selector-button {
+            background-color: #8a7a65;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            margin-right: 10px;
+        }
+
+        .form-field input[type="file"]::file-selector-button:hover {
+            background-color: #7a6a55;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 250px;
+            border-radius: 10px;
+            border: 3px solid #b8a68f;
+        }
+
+        .image-preview p {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
         .form-field.full-width {
             grid-column: 1 / -1;
         }
@@ -269,6 +307,11 @@
                 </select>
             </div>
 
+            <div class="form-field">
+                <label>PUBLISH DATE:</label>
+                <input type="date" id="bookPublishDate">
+            </div>
+
             <div class="form-field full-width">
                 <label>DESCRIPTION:</label>
                 <textarea id="bookDescription" placeholder="Enter book description"></textarea>
@@ -282,6 +325,15 @@
             <div class="form-field">
                 <label>STOCK:</label>
                 <input type="number" id="bookStock" placeholder="0">
+            </div>
+
+            <div class="form-field full-width">
+                <label>BOOK COVER:</label>
+                <input type="file" id="bookCover" accept="image/*" onchange="previewBookCover(event)">
+                <div class="image-preview" id="coverPreview" style="display: none;">
+                    <img id="previewImage" src="" alt="Book Cover Preview">
+                    <p id="fileName"></p>
+                </div>
             </div>
         </div>
 
@@ -530,7 +582,7 @@
         function cancelForm() {
             if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
                 // Reset forms
-                document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(input => {
+                document.querySelectorAll('input[type="text"], input[type="number"], textarea, input[type="file"]').forEach(input => {
                     if (!input.readOnly) {
                         input.value = '';
                     }
@@ -538,6 +590,48 @@
                 document.querySelectorAll('select').forEach(select => {
                     select.selectedIndex = 0;
                 });
+                // Hide image preview
+                const preview = document.getElementById('coverPreview');
+                if (preview) {
+                    preview.style.display = 'none';
+                }
+            }
+        }
+
+        function previewBookCover(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('coverPreview');
+            const previewImage = document.getElementById('previewImage');
+            const fileName = document.getElementById('fileName');
+
+            if (file) {
+                // Check if file is an image
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file!');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size should not exceed 5MB!');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    fileName.textContent = file.name;
+                    preview.style.display = 'block';
+                };
+                
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
             }
         }
 
@@ -545,32 +639,64 @@
             const name = document.getElementById('bookName').value;
             const author = document.getElementById('bookAuthor').value;
             const type = document.getElementById('bookType').value;
+            const isbn = document.getElementById('bookIsbn').value;
             const description = document.getElementById('bookDescription').value;
             const price = document.getElementById('bookPrice').value;
             const stock = document.getElementById('bookStock').value;
+            const coverInput = document.getElementById('bookCover');
+            const coverFile = coverInput.files[0];
 
-            if (!name || !author || !type || !price || !stock) {
+            if (!name || !author || !type || !isbn || !price || !stock) {
                 alert('Please fill in all required fields!');
                 return;
             }
 
-            alert(`Book added successfully!\n\nTitle: ${name}\nAuthor: ${author}\nGenre: ${type}\nPrice: $${price}\nStock: ${stock}`);
+            let message = `Book added successfully!\n\nTitle: ${name}\nAuthor: ${author}\nISBN: ${isbn}\nGenre: ${type}\nPrice: ${price}\nStock: ${stock}`;
+            
+            if (coverFile) {
+                message += `\nBook Cover: ${coverFile.name} (${(coverFile.size / 1024).toFixed(2)} KB)`;
+            }
+
+            alert(message);
+            
+            // In production, you would upload the image file to the server here
+            // Example: FormData API to send file to backend
+            /*
+            const formData = new FormData();
+            formData.append('cover', coverFile);
+            formData.append('name', name);
+            formData.append('author', author);
+            // ... etc
+            */
+            
             cancelForm();
         }
 
         function updateOrder() {
             const orderId = document.getElementById('orderId').value;
-            const status = document.getElementById('orderStatus').value;
+            const newStatus = document.getElementById('orderStatus').value;
+            const currentStatus = document.getElementById('detailCurrentStatus').textContent;
 
-            if (!orderId || !status) {
-                alert('Please select both Order ID and new status!');
+            if (!orderId || !newStatus) {
+                alert('Please select a new status!');
                 return;
             }
 
-            alert(`Order #${orderId} status updated to: ${status}`);
-            document.getElementById('orderId').selectedIndex = 0;
-            document.getElementById('orderStatus').selectedIndex = 0;
-            document.getElementById('orderDetailsSection').style.display = 'none';
+            if (newStatus === currentStatus) {
+                alert('The selected status is the same as the current status!');
+                return;
+            }
+
+            if (confirm(`Update Order #${orderId} status from "${currentStatus}" to "${newStatus}"?`)) {
+                // In production, this would send an UPDATE query to your database
+                // Example: UPDATE orders SET status = ? WHERE orderID = ?
+                
+                alert(`✅ Order #${orderId} status successfully updated to: ${newStatus}`);
+                
+                // Update the displayed current status
+                document.getElementById('detailCurrentStatus').textContent = newStatus;
+                document.getElementById('orderStatus').value = newStatus;
+            }
         }
     </script>
 
