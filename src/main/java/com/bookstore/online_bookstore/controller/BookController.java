@@ -31,4 +31,16 @@ public class BookController {
         model.addAttribute("books", displayBooks);
         return "catalog";
     }
+
+    @GetMapping("/book-details")
+    public String viewBookDetails(@RequestParam("id") int id, Model model) {
+        Book bookHelper = new Book();
+        Book selectedBook = bookHelper.getBookById(id);
+
+        if (selectedBook != null) {
+            model.addAttribute("book", selectedBook);
+            return "book-details";
+        }
+        return "redirect:/catalog"; // Redirect if book not found
+    }
 }

@@ -1,60 +1,248 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Book Details | Online Bookstore</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book Details | Bookstore</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
+
     <style>
-        body { background-color: #fdf5e6; font-family: 'Poppins', sans-serif; color: #333; }
-        .sidebar { width: 200px; border-right: 2px solid #000; min-height: 100vh; padding: 20px; }
-        .details-container { padding: 50px; display: flex; gap: 50px; align-items: flex-start; }
-        .book-cover-large { width: 350px; box-shadow: 10px 10px 20px rgba(0,0,0,0.1); border-radius: 5px; }
-        .info-section { flex-grow: 1; }
-        .btn-custom { padding: 10px 40px; border-radius: 20px; border: none; color: white; transition: 0.3s; }
-        .btn-cancel { background-color: #768d96; }
-        .btn-add { background-color: #768d96; }
-        .qty-control { display: flex; align-items: center; gap: 15px; margin-top: 30px; }
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            margin: 0;
+        }
+
+        /* --- Header & Sidebar (Kept exactly from Catalog) --- */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .main-layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+        }
+
+        .category-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            padding: 0 30px 20px 30px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .category-item {
+            padding: 15px 30px;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- New Book Detail Card Style --- */
+        .content-area {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .glass-detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            gap: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .detail-img-container img {
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            object-fit: contain;
+        }
+
+        .info-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+        }
+
+        .price-tag {
+            font-size: 1.8rem;
+            color: #f39c12;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+
+        .metadata {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .metadata div {
+            margin-bottom: 5px;
+        }
+
+        .metadata span {
+            color: white;
+            margin-left: 8px;
+        }
+
+        .qty-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 10px;
+            width: fit-content;
+            margin-bottom: 30px;
+        }
+
+        .btn-action {
+            padding: 10px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-add {
+            background: #4c7486;
+            color: white;
+            border: none;
+        }
+
+        .btn-add:hover {
+            background: #5d8ca2;
+            transform: scale(1.05);
+        }
     </style>
 </head>
+
 <body>
-    <div class="d-flex">
-        <aside class="sidebar text-center">
-            <h5 class="mb-5">Categories</h5>
-            <p>Non Fiction</p><hr>
-            <p>Fiction</p><hr>
-            <p>Novel</p><hr>
-            <p>Comic</p>
+
+    <header class="glass-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-list fs-2 me-3" style="cursor: pointer;"></i>
+            <h4 class="m-0 font-playfair">Online Bookstore</h4>
+        </div>
+        <div class="fs-4">
+            <i class="bi bi-cart3 me-4" style="cursor: pointer;"></i>
+            <i class="bi bi-person-circle" style="cursor: pointer;"></i>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="category-header">Categories</div>
+            <a th:href="@{/catalog}" class="category-item">All Books</a>
+            <a th:href="@{/catalog(genre='Classic Novel')}" class="category-item">Classic Novel</a>
+            <a th:href="@{/catalog(genre='Fantasy Novel')}" class="category-item">Fantasy Novel</a>
+            <a th:href="@{/catalog(genre='Programming')}" class="category-item">Programming</a>
         </aside>
 
-        <main class="details-container">
-            <img th:src="@{${book.coverImageUrl}}" class="book-cover-large" alt="Book Cover">
-
-            <div class="info-section">
-                <h1 th:text="${book.title}" class="display-5 fw-bold">Book Title</h1>
-                <p class="fs-4 text-muted" th:text="'by ' + ${book.author}">Author Name</p>
-                
-                <div class="mt-4">
-                    <h5>Details</h5>
-                    <p><strong>ISBN:</strong> <span th:text="${book.isbn}"></span></p>
-                    <p><strong>Genre:</strong> <span th:text="${book.genre}"></span></p>
-                    <p><strong>Publisher:</strong> <span th:text="${book.publisher}"></span></p>
-                    <p><strong>Year:</strong> <span th:text="${book.publicationYear}"></span></p>
-                    <p><strong>Price:</strong> RM <span th:text="${#numbers.formatDecimal(book.price, 1, 2)}"></span></p>
+        <main class="content-area">
+            <div class="glass-detail-card">
+                <div class="detail-img-container">
+                    <img th:src="@{${book.coverImageUrl}}" alt="Book Cover">
                 </div>
 
-                <div class="qty-control">
-                    <span>QTY:</span>
-                    <button class="btn btn-sm btn-outline-dark">◀</button>
-                    <span class="px-3 py-1 bg-white border">1</span>
-                    <button class="btn btn-sm btn-outline-dark">▶</button>
-                </div>
+                <div class="info-section">
+                    <h1 th:text="${book.title}">Book Title</h1>
+                    <p class="fs-5 opacity-75" th:text="'by ' + ${book.author}">Author Name</p>
 
-                <div class="mt-5 d-flex gap-3">
-                    <a th:href="@{/catalog}" class="btn-custom btn-cancel text-decoration-none text-center">Cancel</a>
-                    <button class="btn-custom btn-add">Add To Cart</button>
+                    <div class="price-tag" th:text="'RM ' + ${#numbers.formatDecimal(book.price, 1, 2)}">RM 0.00</div>
+
+                    <div class="metadata">
+                        <div><strong>ISBN:</strong><span th:text="${book.isbn}"></span></div>
+                        <div><strong>Publisher:</strong><span th:text="${book.publisher}"></span></div>
+                        <div><strong>Year:</strong><span th:text="${book.publicationYear}"></span></div>
+                        <div><strong>Pages:</strong><span th:text="${book.pageCount}"></span></div>
+                        <div><strong>Genre:</strong><span th:text="${book.genre}"></span></div>
+                    </div>
+
+                    <div class="qty-input">
+                        <span>QTY:</span>
+                        <i class="bi bi-dash-square fs-5 pointer" onclick="changeQty(-1)" style="cursor: pointer;"></i>
+
+                        <input type="number" id="bookQty" value="1" min="1" max="99" style="width: 50px; background: transparent; border: 1px solid rgba(255,255,255,0.3); 
+                  color: white; text-align: center; border-radius: 5px; outline: none;">
+
+                        <i class="bi bi-plus-square fs-5 pointer" onclick="changeQty(1)" style="cursor: pointer;"></i>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <a th:href="@{/catalog}" class="btn-action btn-cancel">Cancel</a>
+                        <button class="btn-action btn-add">Add To Cart</button>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+        function changeQty(amount) {
+            const qtyInput = document.getElementById('bookQty');
+            let currentVal = parseInt(qtyInput.value);
+
+            // Calculate new value
+            let newVal = currentVal + amount;
+
+            // Ensure quantity doesn't go below 1
+            if (newVal >= 1) {
+                qtyInput.value = newVal;
+            }
+        }
+
+        // Prevent typing negative numbers manually
+        document.getElementById('bookQty').addEventListener('change', function () {
+            if (this.value < 1) {
+                this.value = 1;
+            }
+        });
+    </script>
 </body>
+
 </html>
