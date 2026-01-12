@@ -117,6 +117,21 @@ public class Book {
         return books;
     }
 
+    public List<Book> getBooksByGenre(String genre) {
+        List<Book> books = new ArrayList<>();
+        DatabaseManager db = DatabaseManager.getInstance();
+        // Search the actual 'genre' column
+        String sql = "SELECT * FROM books WHERE genre = ?";
+        try (ResultSet rs = db.executeQuery(sql, genre)) {
+            while (rs != null && rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+
     public List<Book> searchByAuthor(String author) {
         List<Book> books = new ArrayList<>();
         DatabaseManager db = DatabaseManager.getInstance();
