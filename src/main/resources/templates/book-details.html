@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Details | Online Bookstore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #fdf5e6; font-family: 'Poppins', sans-serif; color: #333; }
+        .sidebar { width: 200px; border-right: 2px solid #000; min-height: 100vh; padding: 20px; }
+        .details-container { padding: 50px; display: flex; gap: 50px; align-items: flex-start; }
+        .book-cover-large { width: 350px; box-shadow: 10px 10px 20px rgba(0,0,0,0.1); border-radius: 5px; }
+        .info-section { flex-grow: 1; }
+        .btn-custom { padding: 10px 40px; border-radius: 20px; border: none; color: white; transition: 0.3s; }
+        .btn-cancel { background-color: #768d96; }
+        .btn-add { background-color: #768d96; }
+        .qty-control { display: flex; align-items: center; gap: 15px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <aside class="sidebar text-center">
+            <h5 class="mb-5">Categories</h5>
+            <p>Non Fiction</p><hr>
+            <p>Fiction</p><hr>
+            <p>Novel</p><hr>
+            <p>Comic</p>
+        </aside>
+
+        <main class="details-container">
+            <img th:src="@{${book.coverImageUrl}}" class="book-cover-large" alt="Book Cover">
+
+            <div class="info-section">
+                <h1 th:text="${book.title}" class="display-5 fw-bold">Book Title</h1>
+                <p class="fs-4 text-muted" th:text="'by ' + ${book.author}">Author Name</p>
+                
+                <div class="mt-4">
+                    <h5>Details</h5>
+                    <p><strong>ISBN:</strong> <span th:text="${book.isbn}"></span></p>
+                    <p><strong>Genre:</strong> <span th:text="${book.genre}"></span></p>
+                    <p><strong>Publisher:</strong> <span th:text="${book.publisher}"></span></p>
+                    <p><strong>Year:</strong> <span th:text="${book.publicationYear}"></span></p>
+                    <p><strong>Price:</strong> RM <span th:text="${#numbers.formatDecimal(book.price, 1, 2)}"></span></p>
+                </div>
+
+                <div class="qty-control">
+                    <span>QTY:</span>
+                    <button class="btn btn-sm btn-outline-dark">◀</button>
+                    <span class="px-3 py-1 bg-white border">1</span>
+                    <button class="btn btn-sm btn-outline-dark">▶</button>
+                </div>
+
+                <div class="mt-5 d-flex gap-3">
+                    <a th:href="@{/catalog}" class="btn-custom btn-cancel text-decoration-none text-center">Cancel</a>
+                    <button class="btn-custom btn-add">Add To Cart</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
