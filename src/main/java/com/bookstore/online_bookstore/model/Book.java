@@ -103,15 +103,21 @@ public class Book {
         return books;
     }
 
-    public List<Book> searchByTitle(String title) {
+    public List<Book> searchBooks(String query) {
         List<Book> books = new ArrayList<>();
         DatabaseManager db = DatabaseManager.getInstance();
-        String sql = "SELECT * FROM books WHERE title LIKE ?";
-        try (ResultSet rs = db.executeQuery(sql, "%" + title + "%")) {
+
+        // Searches across three different columns at once
+        String sql = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ? OR isbn LIKE ?";
+        String fuzzyQuery = "%" + query + "%";
+
+        // DatabaseManager handles the connection check automatically
+        try (ResultSet rs = db.executeQuery(sql, fuzzyQuery, fuzzyQuery, fuzzyQuery)) {
             while (rs != null && rs.next()) {
                 books.add(mapResultSetToBook(rs));
             }
         } catch (SQLException e) {
+            System.err.println("Unified Search Failed: " + e.getMessage());
             e.printStackTrace();
         }
         return books;
@@ -123,20 +129,6 @@ public class Book {
         // Search the actual 'genre' column
         String sql = "SELECT * FROM books WHERE genre = ?";
         try (ResultSet rs = db.executeQuery(sql, genre)) {
-            while (rs != null && rs.next()) {
-                books.add(mapResultSetToBook(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return books;
-    }
-
-    public List<Book> searchByAuthor(String author) {
-        List<Book> books = new ArrayList<>();
-        DatabaseManager db = DatabaseManager.getInstance();
-        String sql = "SELECT * FROM books WHERE author LIKE ?";
-        try (ResultSet rs = db.executeQuery(sql, "%" + author + "%")) {
             while (rs != null && rs.next()) {
                 books.add(mapResultSetToBook(rs));
             }
