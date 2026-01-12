@@ -302,21 +302,28 @@
         <div class="info-section">
             <div class="info-row">
                 <label>ORDER ID:</label>
-                <select id="orderId">
-                    <option value="">Select Order ID</option>
-                    <option value="1001">Order #1001</option>
-                    <option value="1002">Order #1002</option>
-                    <option value="1003">Order #1003</option>
-                </select>
+                <input type="number" id="orderId" placeholder="Enter Order ID">
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn-primary" onclick="fetchOrderDetails()" style="width: 200px;">FETCH ORDER</button>
             </div>
         </div>
 
         <div id="orderDetailsSection" class="order-details" style="display: none;">
             <h2>ORDER DETAILS:</h2>
-            <p id="orderDetailsText">No order selected</p>
+            <p><strong>Order ID:</strong> <span id="detailOrderId"></span></p>
+            <p><strong>Customer:</strong> <span id="detailCustomer"></span></p>
+            <p><strong>Email:</strong> <span id="detailEmail"></span></p>
+            <p><strong>Total Price:</strong> $<span id="detailTotalPrice"></span></p>
+            <p><strong>Delivery Address:</strong> <span id="detailAddress"></span></p>
+            <p><strong>Order Date:</strong> <span id="detailOrderDate"></span></p>
+            <p><strong>Current Status:</strong> <span id="detailCurrentStatus"></span></p>
+            <hr style="margin: 20px 0; border: 1px solid #b8a68f;">
+            <h3>Order Items:</h3>
+            <div id="detailItems"></div>
         </div>
 
-        <div class="info-section">
+        <div class="info-section" id="statusUpdateSection" style="display: none;">
             <div class="info-row">
                 <label>ORDER STATUS:</label>
                 <select id="orderStatus">
@@ -331,8 +338,8 @@
 
         <div class="button-group">
             <div class="button-row">
-                <button class="btn-primary" onclick="cancelForm()">CANCEL</button>
-                <button class="btn-primary" onclick="updateOrder()">UPDATE</button>
+                <button class="btn-primary" onclick="cancelOrderUpdate()">CANCEL</button>
+                <button class="btn-primary" id="updateBtn" onclick="updateOrder()" style="display: none;">UPDATE</button>
             </div>
             <button class="btn-secondary" onclick="showPage('adminDashboard')">BACK</button>
         </div>
@@ -382,21 +389,128 @@
 
         // Show order details when order is selected
         document.addEventListener('DOMContentLoaded', function() {
-            const orderSelect = document.getElementById('orderId');
-            if (orderSelect) {
-                orderSelect.addEventListener('change', function() {
-                    const orderDetailsSection = document.getElementById('orderDetailsSection');
-                    const orderDetailsText = document.getElementById('orderDetailsText');
-                    
-                    if (this.value) {
-                        orderDetailsText.textContent = orders[this.value];
-                        orderDetailsSection.style.display = 'block';
-                    } else {
-                        orderDetailsSection.style.display = 'none';
-                    }
-                });
-            }
+            // Initialization code can go here
         });
+
+        async function fetchOrderDetails() {
+            const orderIdInput = document.getElementById('orderId');
+            const orderId = orderIdInput.value.trim();
+
+            if (!orderId) {
+                alert('Please enter an Order ID!');
+                return;
+            }
+
+            try {
+                // Simulating database fetch with sample data
+                // In production, this would be an actual API call to your Java backend
+                const orderData = await fetchOrderFromDatabase(orderId);
+
+                if (orderData) {
+                    displayOrderDetails(orderData);
+                } else {
+                    alert('Order not found! Please check the Order ID.');
+                    hideOrderDetails();
+                }
+            } catch (error) {
+                alert('Error fetching order: ' + error.message);
+                hideOrderDetails();
+            }
+        }
+
+        // Simulates fetching from database - Replace with actual API call
+        async function fetchOrderFromDatabase(orderId) {
+            // Sample data - In production, this would query your SQLite database
+            const sampleOrders = {
+                '1': {
+                    orderID: 1,
+                    userEmail: 'john.doe@email.com',
+                    customerName: 'John Doe',
+                    totalPrice: 45.99,
+                    deliveryAddress: '123 Main St, Springfield, IL 62701',
+                    orderDate: '2025-01-10 14:30:00',
+                    status: 'PLACED',
+                    items: [
+                        { title: 'The Great Gatsby', isbn: '978-0-7432-7356-5', quantity: 1, price: 15.99 },
+                        { title: 'To Kill a Mockingbird', isbn: '978-0-06-112008-4', quantity: 2, price: 15.00 }
+                    ]
+                },
+                '2': {
+                    orderID: 2,
+                    userEmail: 'jane.smith@email.com',
+                    customerName: 'Jane Smith',
+                    totalPrice: 32.50,
+                    deliveryAddress: '456 Oak Ave, Chicago, IL 60601',
+                    orderDate: '2025-01-09 10:15:00',
+                    status: 'SHIPPED',
+                    items: [
+                        { title: '1984', isbn: '978-0-452-28423-4', quantity: 1, price: 16.50 },
+                        { title: 'Brave New World', isbn: '978-0-06-085052-4', quantity: 1, price: 16.00 }
+                    ]
+                },
+                '3': {
+                    orderID: 3,
+                    userEmail: 'bob.wilson@email.com',
+                    customerName: 'Bob Wilson',
+                    totalPrice: 78.00,
+                    deliveryAddress: '789 Pine Rd, Boston, MA 02101',
+                    orderDate: '2025-01-08 16:45:00',
+                    status: 'OUT_FOR_DELIVERY',
+                    items: [
+                        { title: 'Harry Potter Series', isbn: '978-0-439-13959-8', quantity: 5, price: 15.60 }
+                    ]
+                }
+            };
+
+            // Simulate async database query delay
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            return sampleOrders[orderId] || null;
+        }
+
+        function displayOrderDetails(orderData) {
+            document.getElementById('detailOrderId').textContent = orderData.orderID;
+            document.getElementById('detailCustomer').textContent = orderData.customerName;
+            document.getElementById('detailEmail').textContent = orderData.userEmail;
+            document.getElementById('detailTotalPrice').textContent = orderData.totalPrice.toFixed(2);
+            document.getElementById('detailAddress').textContent = orderData.deliveryAddress;
+            document.getElementById('detailOrderDate').textContent = orderData.orderDate;
+            document.getElementById('detailCurrentStatus').textContent = orderData.status;
+
+            // Display order items
+            const itemsContainer = document.getElementById('detailItems');
+            itemsContainer.innerHTML = '';
+            orderData.items.forEach((item, index) => {
+                itemsContainer.innerHTML += `
+                    <p style="margin: 8px 0;">
+                        ${index + 1}. ${item.title} (ISBN: ${item.isbn})<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Quantity: ${item.quantity} × ${item.price.toFixed(2)} = ${(item.quantity * item.price).toFixed(2)}
+                    </p>
+                `;
+            });
+
+            // Show sections
+            document.getElementById('orderDetailsSection').style.display = 'block';
+            document.getElementById('statusUpdateSection').style.display = 'block';
+            document.getElementById('updateBtn').style.display = 'inline-block';
+
+            // Set current status in dropdown
+            document.getElementById('orderStatus').value = orderData.status;
+        }
+
+        function hideOrderDetails() {
+            document.getElementById('orderDetailsSection').style.display = 'none';
+            document.getElementById('statusUpdateSection').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'none';
+        }
+
+        function cancelOrderUpdate() {
+            if (confirm('Are you sure you want to cancel?')) {
+                document.getElementById('orderId').value = '';
+                document.getElementById('orderStatus').selectedIndex = 0;
+                hideOrderDetails();
+            }
+        }
 
         function showPage(pageId) {
             const containers = document.querySelectorAll('.container');
