@@ -17,10 +17,10 @@ public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:" + DB_NAME;
 
     private Connection connection;
-    private User loggedInUser;  // store session user
+    private User loggedInUser; // store session user
 
-
-    private DatabaseManager() {}
+    private DatabaseManager() {
+    }
 
     // ============================================================
     // SINGLETON
@@ -97,13 +97,17 @@ public class DatabaseManager {
     // QUERY
     // ============================================================
     public ResultSet executeQuery(String sql, Object... params) {
+        // FORCE a connection check here!
+        if (!connect()) {
+            System.err.println("❌ Cannot execute query: Connection failed.");
+            return null;
+        }
+
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
             }
-
             return ps.executeQuery();
         } catch (SQLException e) {
             System.err.println("❌ Query Failed: " + e.getMessage());
@@ -115,7 +119,7 @@ public class DatabaseManager {
         String sql = "SELECT COUNT(*) FROM " + tableName;
 
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             return rs.next() ? rs.getInt(1) : 0;
 
@@ -127,24 +131,24 @@ public class DatabaseManager {
     // ============================================================
     // ADD USER
     // ============================================================
-   public void addUser(String email, String password, String role,
-                    String memberType, String birthDate, String address) {
+    public void addUser(String email, String password, String role,
+            String memberType, String birthDate, String address) {
 
-    String sql = """
-            INSERT INTO users (email, password, role, memberType, birthDate, address)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
+        String sql = """
+                INSERT INTO users (email, password, role, memberType, birthDate, address)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
 
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-        ps.setString(1, email);
-        ps.setString(2, password);
-        ps.setString(3, role);          // ADMIN / GUEST / MEMBER
-        ps.setString(4, memberType);    // STANDARD / PREMIUM
-        ps.setString(5, birthDate);     // DATE
-        ps.setString(6, address);
+            ps.setString(1, email);
+            ps.setString(2, password);
+            ps.setString(3, role); // ADMIN / GUEST / MEMBER
+            ps.setString(4, memberType); // STANDARD / PREMIUM
+            ps.setString(5, birthDate); // DATE
+            ps.setString(6, address);
 
-        ps.executeUpdate();
+            ps.executeUpdate();
 
             System.out.println("✔ User added: " + email);
 
@@ -153,7 +157,7 @@ public class DatabaseManager {
         }
     }
 
-        // ADD CUSTOMER (shortcut)
+    // ADD CUSTOMER (shortcut)
     public void addCustomer(String email, String password, String memberType, String address) {
         addUser(email, password, "CUSTOMER", memberType, null, address);
     }
@@ -168,14 +172,13 @@ public class DatabaseManager {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
 
-             String role = rs.getString("role");
+            String role = rs.getString("role");
 
             if (role.equals("ADMIN")) {
                 return new Admin(
                         rs.getInt("userID"),
                         rs.getString("email"),
-                        rs.getString("password")
-                );
+                        rs.getString("password"));
             } else {
                 return new Customer(
                         rs.getInt("userID"),
@@ -183,10 +186,8 @@ public class DatabaseManager {
                         rs.getString("password"),
                         rs.getString("memberType"),
                         rs.getString("birthDate"),
-                        rs.getString("address")
-                );
+                        rs.getString("address"));
             }
-
 
         } catch (SQLException e) {
             System.err.println("❌ getUserByEmail Error: " + e.getMessage());
@@ -209,7 +210,6 @@ public class DatabaseManager {
         return null;
     }
 
-
     // ============================================================
     // UTILITY
     // ============================================================
@@ -221,4 +221,3 @@ public class DatabaseManager {
         return connection.prepareStatement(sql);
     }
 }
-
