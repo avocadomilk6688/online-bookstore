@@ -108,12 +108,9 @@
                     <input name="password" type="password" class="form-control" placeholder="••••••••" required/>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">System Role</label>
-                    <select name="role" class="form-select" required>
-                        <option value="MEMBER">Member</option>
-                        <option value="GUEST">Guest</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
+                    <label class="form-label">Confirm Password</label>
+                    <input id="confirm_password" type="password" class="form-control" placeholder="••••••••" required/>
+                    <div id="password_error" class="text-danger small mt-1" style="display:none;">Passwords do not match</div>
                 </div>
             </div>
 
@@ -144,6 +141,25 @@
         </div>
     </div>
 </div>
+<script>
+    const form = document.getElementById('registrationForm');
+    const password = document.getElementById('password');
+    const confirm = document.getElementById('confirm_password');
+    const errorMsg = document.getElementById('password_error');
+
+    form.addEventListener('submit', function(e) {
+        if (password.value !== confirm.value) {
+            e.preventDefault(); // Stop form submission
+            errorMsg.style.display = 'block';
+            confirm.style.borderColor = '#ff4d4d';
+        }
+    });
+
+    confirm.addEventListener('input', function() {
+        errorMsg.style.display = 'none';
+        confirm.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+    });
+</script>
 
 </body>
 </html>
