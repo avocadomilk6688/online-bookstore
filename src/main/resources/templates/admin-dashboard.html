@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Bookstore System</title>
+    <title>Admin Dashboard</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* SAME CSS FROM YOUR CODE */
         body {
             font-family: 'Georgia', serif;
             background-color: #f5e6d3;
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
         }
 
         .container {
             width: 100%;
             max-width: 900px;
-            display: none;
-        }
-
-        .container.active {
-            display: block;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         h1 {
@@ -62,9 +56,7 @@
             min-width: 150px;
         }
 
-        .info-row input,
-        .info-row select,
-        .info-row textarea {
+        .info-row input {
             flex: 1;
             padding: 12px 20px;
             border: none;
@@ -73,110 +65,6 @@
             color: #fff;
             font-size: 1em;
             font-family: 'Georgia', serif;
-        }
-
-        .info-row textarea {
-            border-radius: 20px;
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        .info-row input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .info-row select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            cursor: pointer;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px 50px;
-            margin: 50px auto;
-            max-width: 800px;
-        }
-
-        .form-field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-field label {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            background-color: #b8a68f;
-            color: #fff;
-            font-size: 1em;
-            font-family: 'Georgia', serif;
-        }
-
-        .form-field input[type="file"] {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .form-field input[type="file"]::file-selector-button {
-            background-color: #8a7a65;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-family: 'Georgia', serif;
-            margin-right: 10px;
-        }
-
-        .form-field input[type="file"]::file-selector-button:hover {
-            background-color: #7a6a55;
-        }
-
-        .image-preview {
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .image-preview img {
-            max-width: 200px;
-            max-height: 250px;
-            border-radius: 10px;
-            border: 3px solid #b8a68f;
-        }
-
-        .image-preview p {
-            margin-top: 10px;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .form-field.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-field textarea {
-            border-radius: 20px;
-            min-height: 150px;
-        }
-
-        .form-field select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            cursor: pointer;
         }
 
         .button-group {
@@ -195,8 +83,9 @@
             font-size: 1.1em;
             font-family: 'Georgia', serif;
             cursor: pointer;
-            transition: all 0.3s ease;
             letter-spacing: 1px;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -204,501 +93,46 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            background-color: #a89580;
-            transform: translateY(-2px);
-        }
-
         .btn-secondary {
             background-color: #7a9098;
             color: white;
         }
 
-        .btn-secondary:hover {
-            background-color: #6a8088;
-            transform: translateY(-2px);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 40px;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .order-details {
-            background-color: #d4c4b0;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px auto;
-            max-width: 600px;
-        }
-
-        .order-details h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-        }
-
-        .order-details p {
-            font-size: 1.1em;
-            margin: 10px 0;
-        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); transition: 0.3s; }
     </style>
 </head>
 <body>
 
-    <!-- ADMIN DASHBOARD -->
-    <div id="adminDashboard" class="container active">
+    <div class="container">
         <h1>ADMIN DASHBOARD</h1>
         <div class="divider"></div>
         
         <div class="info-section">
             <div class="info-row">
                 <label>NAME:</label>
-                <input type="text" id="adminName" readonly>
+                <!-- Data passed from Controller -->
+                <input type="text" th:value="${adminName}" readonly>
             </div>
             
             <div class="info-row">
                 <label>ADMIN ID:</label>
-                <input type="text" id="adminId" readonly>
+                <input type="text" th:value="${adminId}" readonly>
             </div>
             
             <div class="info-row">
                 <label>EMAIL:</label>
-                <input type="text" id="adminEmail" readonly>
+                <input type="text" th:value="${adminEmail}" readonly>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn-primary" onclick="showPage('manageBook')">MANAGE BOOK</button>
-            <button class="btn-primary" onclick="showPage('updateOrderStatus')">UPDATE ORDER STATUS</button>
-            <button class="btn-primary" onclick="showPage('previewMainPage')">PREVIEW MAIN PAGE</button>
-            <button class="btn-secondary" onclick="logout()">LOGOUT</button>
+            <!-- Links to other pages -->
+            <a th:href="@{/admin/books}" class="btn-primary" style="text-decoration: none; color: white;">MANAGE BOOK</a>
+            <a th:href="@{/admin/orders}" class="btn-primary" style="text-decoration: none; color: white;">UPDATE ORDER STATUS</a>
+            <a th:href="@{/}" class="btn-primary" style="text-decoration: none; color: white;">PREVIEW MAIN PAGE</a>
+            <a th:href="@{/logout}" class="btn-secondary" style="text-decoration: none; color: white;">LOGOUT</a>
         </div>
     </div>
-
-    <!-- MANAGE BOOK -->
-    <div id="manageBook" class="container">
-        <h1>MANAGE BOOK</h1>
-        <div class="divider"></div>
-
-        <div class="form-grid">
-            <div class="form-field">
-                <label>NAME:</label>
-                <input type="text" id="bookName" placeholder="Enter book name">
-            </div>
-
-            <div class="form-field">
-                <label>AUTHOR:</label>
-                <input type="text" id="bookAuthor" placeholder="Enter author name">
-            </div>
-
-            <div class="form-field">
-                <label>TYPE:</label>
-                <select id="bookType">
-                    <option value="">Select genre</option>
-                    <option value="Fiction">Fiction</option>
-                    <option value="Non-Fiction">Non-Fiction</option>
-                    <option value="Mystery">Mystery</option>
-                    <option value="Romance">Romance</option>
-                    <option value="Science Fiction">Science Fiction</option>
-                    <option value="Fantasy">Fantasy</option>
-                    <option value="Biography">Biography</option>
-                </select>
-            </div>
-
-            <div class="form-field">
-                <label>PUBLISH DATE:</label>
-                <input type="date" id="bookPublishDate">
-            </div>
-
-            <div class="form-field full-width">
-                <label>DESCRIPTION:</label>
-                <textarea id="bookDescription" placeholder="Enter book description"></textarea>
-            </div>
-
-            <div class="form-field">
-                <label>PRICE:</label>
-                <input type="number" id="bookPrice" placeholder="0.00" step="0.01">
-            </div>
-
-            <div class="form-field">
-                <label>STOCK:</label>
-                <input type="number" id="bookStock" placeholder="0">
-            </div>
-
-            <div class="form-field full-width">
-                <label>BOOK COVER:</label>
-                <input type="file" id="bookCover" accept="image/*" onchange="previewBookCover(event)">
-                <div class="image-preview" id="coverPreview" style="display: none;">
-                    <img id="previewImage" src="" alt="Book Cover Preview">
-                    <p id="fileName"></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <div class="button-row">
-                <button class="btn-primary" onclick="cancelForm()">CANCEL</button>
-                <button class="btn-primary" onclick="addBook()">ADD BOOK</button>
-            </div>
-            <button class="btn-secondary" onclick="showPage('adminDashboard')">BACK</button>
-        </div>
-    </div>
-
-    <!-- UPDATE ORDER STATUS -->
-    <div id="updateOrderStatus" class="container">
-        <h1>UPDATE ORDER STATUS</h1>
-        <div class="divider"></div>
-
-        <div class="info-section">
-            <div class="info-row">
-                <label>ORDER ID:</label>
-                <input type="number" id="orderId" placeholder="Enter Order ID">
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn-primary" onclick="fetchOrderDetails()" style="width: 200px;">FETCH ORDER</button>
-            </div>
-        </div>
-
-        <div id="orderDetailsSection" class="order-details" style="display: none;">
-            <h2>ORDER DETAILS:</h2>
-            <p><strong>Order ID:</strong> <span id="detailOrderId"></span></p>
-            <p><strong>Customer:</strong> <span id="detailCustomer"></span></p>
-            <p><strong>Email:</strong> <span id="detailEmail"></span></p>
-            <p><strong>Total Price:</strong> $<span id="detailTotalPrice"></span></p>
-            <p><strong>Delivery Address:</strong> <span id="detailAddress"></span></p>
-            <p><strong>Order Date:</strong> <span id="detailOrderDate"></span></p>
-            <p><strong>Current Status:</strong> <span id="detailCurrentStatus"></span></p>
-            <hr style="margin: 20px 0; border: 1px solid #b8a68f;">
-            <h3>Order Items:</h3>
-            <div id="detailItems"></div>
-        </div>
-
-        <div class="info-section" id="statusUpdateSection" style="display: none;">
-            <div class="info-row">
-                <label>ORDER STATUS:</label>
-                <select id="orderStatus">
-                    <option value="">Select Status</option>
-                    <option value="PLACED">PLACED</option>
-                    <option value="SHIPPED">SHIPPED</option>
-                    <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
-                    <option value="DELIVERED">DELIVERED</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <div class="button-row">
-                <button class="btn-primary" onclick="cancelOrderUpdate()">CANCEL</button>
-                <button class="btn-primary" id="updateBtn" onclick="updateOrder()" style="display: none;">UPDATE</button>
-            </div>
-            <button class="btn-secondary" onclick="showPage('adminDashboard')">BACK</button>
-        </div>
-    </div>
-
-    <!-- PREVIEW MAIN PAGE -->
-    <div id="previewMainPage" class="container">
-        <h1>MAIN PAGE PREVIEW</h1>
-        <div class="divider"></div>
-
-        <div class="order-details">
-            <h2>Available Features:</h2>
-            <p>📚 Browse Books</p>
-            <p>🛒 Shopping Cart</p>
-            <p>👤 User Account Management</p>
-            <p>📦 Order Tracking</p>
-            <p>💳 Checkout (COD)</p>
-            <p>🎁 Discount System</p>
-        </div>
-
-        <div class="button-group">
-            <button class="btn-secondary" onclick="showPage('adminDashboard')">BACK TO DASHBOARD</button>
-        </div>
-    </div>
-
-    <script>
-        // Initialize admin data
-        const adminData = {
-            name: 'Admin User',
-            id: 'ADM001',
-            email: 'admin@bookstore.com'
-        };
-
-        // Sample order data
-        const orders = {
-            '1001': 'Customer: John Doe | Total: $45.99 | Books: 3 | Status: PLACED',
-            '1002': 'Customer: Jane Smith | Total: $32.50 | Books: 2 | Status: SHIPPED',
-            '1003': 'Customer: Bob Wilson | Total: $78.00 | Books: 5 | Status: OUT_FOR_DELIVERY'
-        };
-
-        // Load admin data on page load
-        window.onload = function() {
-            document.getElementById('adminName').value = adminData.name;
-            document.getElementById('adminId').value = adminData.id;
-            document.getElementById('adminEmail').value = adminData.email;
-        };
-
-        // Show order details when order is selected
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialization code can go here
-        });
-
-        async function fetchOrderDetails() {
-            const orderIdInput = document.getElementById('orderId');
-            const orderId = orderIdInput.value.trim();
-
-            if (!orderId) {
-                alert('Please enter an Order ID!');
-                return;
-            }
-
-            try {
-                // Simulating database fetch with sample data
-                // In production, this would be an actual API call to your Java backend
-                const orderData = await fetchOrderFromDatabase(orderId);
-
-                if (orderData) {
-                    displayOrderDetails(orderData);
-                } else {
-                    alert('Order not found! Please check the Order ID.');
-                    hideOrderDetails();
-                }
-            } catch (error) {
-                alert('Error fetching order: ' + error.message);
-                hideOrderDetails();
-            }
-        }
-
-        // Simulates fetching from database - Replace with actual API call
-        async function fetchOrderFromDatabase(orderId) {
-            // Sample data - In production, this would query your SQLite database
-            const sampleOrders = {
-                '1': {
-                    orderID: 1,
-                    userEmail: 'john.doe@email.com',
-                    customerName: 'John Doe',
-                    totalPrice: 45.99,
-                    deliveryAddress: '123 Main St, Springfield, IL 62701',
-                    orderDate: '2025-01-10 14:30:00',
-                    status: 'PLACED',
-                    items: [
-                        { title: 'The Great Gatsby', isbn: '978-0-7432-7356-5', quantity: 1, price: 15.99 },
-                        { title: 'To Kill a Mockingbird', isbn: '978-0-06-112008-4', quantity: 2, price: 15.00 }
-                    ]
-                },
-                '2': {
-                    orderID: 2,
-                    userEmail: 'jane.smith@email.com',
-                    customerName: 'Jane Smith',
-                    totalPrice: 32.50,
-                    deliveryAddress: '456 Oak Ave, Chicago, IL 60601',
-                    orderDate: '2025-01-09 10:15:00',
-                    status: 'SHIPPED',
-                    items: [
-                        { title: '1984', isbn: '978-0-452-28423-4', quantity: 1, price: 16.50 },
-                        { title: 'Brave New World', isbn: '978-0-06-085052-4', quantity: 1, price: 16.00 }
-                    ]
-                },
-                '3': {
-                    orderID: 3,
-                    userEmail: 'bob.wilson@email.com',
-                    customerName: 'Bob Wilson',
-                    totalPrice: 78.00,
-                    deliveryAddress: '789 Pine Rd, Boston, MA 02101',
-                    orderDate: '2025-01-08 16:45:00',
-                    status: 'OUT_FOR_DELIVERY',
-                    items: [
-                        { title: 'Harry Potter Series', isbn: '978-0-439-13959-8', quantity: 5, price: 15.60 }
-                    ]
-                }
-            };
-
-            // Simulate async database query delay
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            return sampleOrders[orderId] || null;
-        }
-
-        function displayOrderDetails(orderData) {
-            document.getElementById('detailOrderId').textContent = orderData.orderID;
-            document.getElementById('detailCustomer').textContent = orderData.customerName;
-            document.getElementById('detailEmail').textContent = orderData.userEmail;
-            document.getElementById('detailTotalPrice').textContent = orderData.totalPrice.toFixed(2);
-            document.getElementById('detailAddress').textContent = orderData.deliveryAddress;
-            document.getElementById('detailOrderDate').textContent = orderData.orderDate;
-            document.getElementById('detailCurrentStatus').textContent = orderData.status;
-
-            // Display order items
-            const itemsContainer = document.getElementById('detailItems');
-            itemsContainer.innerHTML = '';
-            orderData.items.forEach((item, index) => {
-                itemsContainer.innerHTML += `
-                    <p style="margin: 8px 0;">
-                        ${index + 1}. ${item.title} (ISBN: ${item.isbn})<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;Quantity: ${item.quantity} × ${item.price.toFixed(2)} = ${(item.quantity * item.price).toFixed(2)}
-                    </p>
-                `;
-            });
-
-            // Show sections
-            document.getElementById('orderDetailsSection').style.display = 'block';
-            document.getElementById('statusUpdateSection').style.display = 'block';
-            document.getElementById('updateBtn').style.display = 'inline-block';
-
-            // Set current status in dropdown
-            document.getElementById('orderStatus').value = orderData.status;
-        }
-
-        function hideOrderDetails() {
-            document.getElementById('orderDetailsSection').style.display = 'none';
-            document.getElementById('statusUpdateSection').style.display = 'none';
-            document.getElementById('updateBtn').style.display = 'none';
-        }
-
-        function cancelOrderUpdate() {
-            if (confirm('Are you sure you want to cancel?')) {
-                document.getElementById('orderId').value = '';
-                document.getElementById('orderStatus').selectedIndex = 0;
-                hideOrderDetails();
-            }
-        }
-
-        function showPage(pageId) {
-            const containers = document.querySelectorAll('.container');
-            containers.forEach(container => {
-                container.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                alert('Logged out successfully!');
-                location.reload();
-            }
-        }
-
-        function cancelForm() {
-            if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-                // Reset forms
-                document.querySelectorAll('input[type="text"], input[type="number"], textarea, input[type="file"]').forEach(input => {
-                    if (!input.readOnly) {
-                        input.value = '';
-                    }
-                });
-                document.querySelectorAll('select').forEach(select => {
-                    select.selectedIndex = 0;
-                });
-                // Hide image preview
-                const preview = document.getElementById('coverPreview');
-                if (preview) {
-                    preview.style.display = 'none';
-                }
-            }
-        }
-
-        function previewBookCover(event) {
-            const file = event.target.files[0];
-            const preview = document.getElementById('coverPreview');
-            const previewImage = document.getElementById('previewImage');
-            const fileName = document.getElementById('fileName');
-
-            if (file) {
-                // Check if file is an image
-                if (!file.type.startsWith('image/')) {
-                    alert('Please upload an image file!');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    return;
-                }
-
-                // Check file size (limit to 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size should not exceed 5MB!');
-                    event.target.value = '';
-                    preview.style.display = 'none';
-                    return;
-                }
-
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    fileName.textContent = file.name;
-                    preview.style.display = 'block';
-                };
-                
-                reader.readAsDataURL(file);
-            } else {
-                preview.style.display = 'none';
-            }
-        }
-
-        function addBook() {
-            const name = document.getElementById('bookName').value;
-            const author = document.getElementById('bookAuthor').value;
-            const type = document.getElementById('bookType').value;
-            const isbn = document.getElementById('bookIsbn').value;
-            const description = document.getElementById('bookDescription').value;
-            const price = document.getElementById('bookPrice').value;
-            const stock = document.getElementById('bookStock').value;
-            const coverInput = document.getElementById('bookCover');
-            const coverFile = coverInput.files[0];
-
-            if (!name || !author || !type || !isbn || !price || !stock) {
-                alert('Please fill in all required fields!');
-                return;
-            }
-
-            let message = `Book added successfully!\n\nTitle: ${name}\nAuthor: ${author}\nISBN: ${isbn}\nGenre: ${type}\nPrice: ${price}\nStock: ${stock}`;
-            
-            if (coverFile) {
-                message += `\nBook Cover: ${coverFile.name} (${(coverFile.size / 1024).toFixed(2)} KB)`;
-            }
-
-            alert(message);
-            
-            // In production, you would upload the image file to the server here
-            // Example: FormData API to send file to backend
-            /*
-            const formData = new FormData();
-            formData.append('cover', coverFile);
-            formData.append('name', name);
-            formData.append('author', author);
-            // ... etc
-            */
-            
-            cancelForm();
-        }
-
-        function updateOrder() {
-            const orderId = document.getElementById('orderId').value;
-            const newStatus = document.getElementById('orderStatus').value;
-            const currentStatus = document.getElementById('detailCurrentStatus').textContent;
-
-            if (!orderId || !newStatus) {
-                alert('Please select a new status!');
-                return;
-            }
-
-            if (newStatus === currentStatus) {
-                alert('The selected status is the same as the current status!');
-                return;
-            }
-
-            if (confirm(`Update Order #${orderId} status from "${currentStatus}" to "${newStatus}"?`)) {
-                // In production, this would send an UPDATE query to your database
-                // Example: UPDATE orders SET status = ? WHERE orderID = ?
-                
-                alert(`✅ Order #${orderId} status successfully updated to: ${newStatus}`);
-                
-                // Update the displayed current status
-                document.getElementById('detailCurrentStatus').textContent = newStatus;
-                document.getElementById('orderStatus').value = newStatus;
-            }
-        }
-    </script>
 
 </body>
 </html>
