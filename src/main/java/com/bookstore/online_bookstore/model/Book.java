@@ -85,7 +85,7 @@ public class Book {
                     book.getType(),
                     book.getGenre(),
                     book.getStatus(),
-                    book.isPromo() ? 1 : 0);
+                    book.getIsPromo() ? 1 : 0);
         }
     }
 
@@ -160,7 +160,7 @@ public class Book {
                     book.getAuthor(),
                     book.getPrice(),
                     book.getStatus(),
-                    book.isPromo() ? 1 : 0,
+                    book.getIsPromo() ? 1 : 0,
                     book.getBookID());
         }
     }
@@ -277,11 +277,11 @@ public class Book {
         this.status = status;
     }
 
-    public boolean isPromo() {
+    public boolean getIsPromo() {
         return isPromo;
     }
 
-    public void setPromo(boolean promo) {
+    public void setIsPromo(boolean promo) {
         isPromo = promo;
     }
 }

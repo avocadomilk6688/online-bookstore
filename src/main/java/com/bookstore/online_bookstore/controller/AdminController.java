@@ -24,7 +24,7 @@ public class AdminController {
     @GetMapping("/admin/dashboard")
     public String adminDashboard(Model model) {
         DatabaseManager db = DatabaseManager.getInstance();
-        
+
         // A. Data for the UI (Name, ID, Email)
         // In a real app, fetch this from the logged-in session. Here we set defaults.
         model.addAttribute("adminName", "Admin User");
@@ -34,20 +34,20 @@ public class AdminController {
         // B. Data for Logs (Optional - if you want to display them somewhere else)
         List<String> logs = new ArrayList<>();
         String logSql = "SELECT * FROM admin_log ORDER BY timestamp DESC LIMIT 20";
-        
+
         try (ResultSet rs = db.executeQuery(logSql)) {
             while (rs != null && rs.next()) {
-                String entry = "Admin ID: " + rs.getInt("adminID") + 
-                               " | Action: " + rs.getString("action") + 
-                               " | Time: " + rs.getString("timestamp");
+                String entry = "Admin ID: " + rs.getInt("adminID") +
+                        " | Action: " + rs.getString("action") +
+                        " | Time: " + rs.getString("timestamp");
                 logs.add(entry);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         model.addAttribute("adminLogs", logs);
-        return "admin-dashboard"; 
+        return "admin-dashboard";
     }
 
     // ============================================================
@@ -55,22 +55,24 @@ public class AdminController {
     // ============================================================
     @GetMapping("/admin/books")
     public String manageBook(Model model) {
-        // Pass an empty book object to the form (or empty map)
-        Map<String, Object> bookForm = new HashMap<>();
-        model.addAttribute("bookForm", bookForm);
-        return "manage-book";
+        model.addAttribute("bookForm", new com.bookstore.online_bookstore.model.Book());
+        return "manage_book";
     }
 
     @PostMapping("/admin/books/add")
-    public String addBook(@RequestParam String name,
-                          @RequestParam String author,
-                          @RequestParam String isbn,
-                          @RequestParam String type,
-                          @RequestParam String publishDate,
-                          @RequestParam String description,
-                          @RequestParam double price,
-                          @RequestParam int stock,
-                          @RequestParam("file") MultipartFile file) {
+    public String addBook(@RequestParam String title,
+                      @RequestParam String author,
+                      @RequestParam String isbn,
+                      @RequestParam String genre,
+                      @RequestParam String language,
+                      @RequestParam int publicationYear,
+                      @RequestParam double price,
+                      @RequestParam String publisher,
+                      @RequestParam int pageCount,
+                      @RequestParam String type,
+                      @RequestParam String status,
+                      @RequestParam(defaultValue = "false") boolean isPromo,
+                      @RequestParam("file") MultipartFile file) {
 
         DatabaseManager db = DatabaseManager.getInstance();
 
@@ -81,11 +83,27 @@ public class AdminController {
             coverUrl = "/images/" + file.getOriginalFilename();
         }
 
-        String sql = "INSERT INTO books (title, author, isbn, genre, price, stock, description, coverImageUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        db.executePrepared(sql, name, author, isbn, type, price, stock, description, coverUrl);
+        String sql = "INSERT INTO books (isbn, coverImageUrl, title, author, price, publisher, " +
+                 "publicationYear, language, pageCount, type, genre, status, isPromo) " +
+                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        db.executePrepared(sql, 
+            isbn, 
+            coverUrl, 
+            title, 
+            author, 
+            price, 
+            "Unknown Publisher", // Add this to @RequestParam if you want it dynamic
+            publicationYear, 
+            language, 
+            pageCount, 
+            type, 
+            genre, 
+            status, 
+            isPromo ? 1 : 0
+    );
 
         // Log action
-        logAction("Added new book: " + name);
+        logAction("Added new book: " + title);
 
         return "redirect:/admin/dashboard";
     }
@@ -110,12 +128,13 @@ public class AdminController {
             if (rsOrder != null && rsOrder.next()) {
                 // 2. Fetch User Details (Customer Name & Email)
                 int userID = rsOrder.getInt("userID");
-                String userSql = "SELECT name, email FROM users WHERE userID = ?"; // Assuming 'name' column exists in users
+                String userSql = "SELECT name, email FROM users WHERE userID = ?"; // Assuming 'name' column exists in
+                                                                                   // users
                 ResultSet rsUser = db.executeQuery(userSql, userID);
-                
+
                 String customerName = "Unknown";
                 String userEmail = "Unknown";
-                
+
                 if (rsUser != null && rsUser.next()) {
                     customerName = rsUser.getString("name"); // Adjust column name if needed (e.g. 'fullName')
                     userEmail = rsUser.getString("email");
@@ -123,8 +142,8 @@ public class AdminController {
 
                 // 3. Fetch Order Items
                 String itemsSql = "SELECT order_items.quantity, order_items.price, books.title, books.isbn " +
-                                  "FROM order_items JOIN books ON order_items.isbn = books.isbn " +
-                                  "WHERE order_items.orderID = ?";
+                        "FROM order_items JOIN books ON order_items.isbn = books.isbn " +
+                        "WHERE order_items.orderID = ?";
                 ResultSet rsItems = db.executeQuery(itemsSql, orderId);
 
                 List<Map<String, Object>> itemsList = new ArrayList<>();
@@ -179,13 +198,13 @@ public class AdminController {
         try {
             if (rs != null && rs.next()) {
                 int userID = rs.getInt("userID");
-                
+
                 // Manually create the notification (Simulating Observer Pattern in Controller)
                 // Since the Controller orchestrates the flow, it can act as the trigger here.
                 String message = "Order #" + orderID + " status updated to: " + status;
                 String notifySql = "INSERT INTO notifications (userID, orderID, message, status) VALUES (?, ?, ?, 'UNREAD')";
                 db.executePrepared(notifySql, userID, orderID, message);
-                
+
                 System.out.println("✅ [Observer Pattern] Notification sent for Order " + orderID);
             }
         } catch (SQLException e) {
@@ -202,20 +221,20 @@ public class AdminController {
     public String viewNotifications(@RequestParam("userID") int userID, Model model) {
         DatabaseManager db = DatabaseManager.getInstance();
         List<String> notifications = new ArrayList<>();
-        
+
         String sql = "SELECT * FROM notifications WHERE userID = ? AND status = 'UNREAD' ORDER BY createdAt DESC";
-        
+
         try (ResultSet rs = db.executeQuery(sql, userID)) {
             while (rs != null && rs.next()) {
-                String note = "Order #" + rs.getInt("orderID") + ": " + 
-                             rs.getString("message") + 
-                             " (" + rs.getString("createdAt") + ")";
+                String note = "Order #" + rs.getInt("orderID") + ": " +
+                        rs.getString("message") +
+                        " (" + rs.getString("createdAt") + ")";
                 notifications.add(note);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         model.addAttribute("notifications", notifications);
         return "notifications";
     }
@@ -225,8 +244,9 @@ public class AdminController {
     // ============================================================
     private void logAction(String action) {
         DatabaseManager db = DatabaseManager.getInstance();
-        // Assuming Admin ID 1 is the current admin. In a real app, get this from Security Context.
-        int currentAdminId = 1; 
+        // Assuming Admin ID 1 is the current admin. In a real app, get this from
+        // Security Context.
+        int currentAdminId = 1;
         String sql = "INSERT INTO admin_log (adminID, action) VALUES (?, ?)";
         db.executePrepared(sql, currentAdminId, action);
     }
