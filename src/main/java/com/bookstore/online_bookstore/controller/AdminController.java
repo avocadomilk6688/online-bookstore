@@ -6,6 +6,7 @@ import com.bookstore.online_bookstore.model.Book;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,13 +58,30 @@ public class AdminController {
     // 2. MANAGE BOOK PAGE
     // ============================================================
     @GetMapping("/admin/books")
-    public String manageBook(Model model) {
-        Book bookHelper = new Book();
-        // Fetch all books from database
-        model.addAttribute("allBooks", bookHelper.getAllBooks());
-
-        // Keep the empty form for adding new books
+    public String manageBook(@RequestParam(value = "query", required = false) String query, Model model) {
+        if (query != null && !query.trim().isEmpty()) {
+            Book bookHelper = new Book();
+            model.addAttribute("allBooks", bookHelper.searchBooks(query));
+            model.addAttribute("currentQuery", query);
+        } else {
+            model.addAttribute("allBooks", null); // Keeps the table hidden
+        }
         model.addAttribute("bookForm", new Book());
+        return "manage_book";
+    }
+
+    @GetMapping("/admin/books/edit/{id}")
+    public String editBook(@PathVariable("id") int id, Model model) {
+        Book bookHelper = new Book();
+        Book existingBook = bookHelper.getBookById(id);
+
+        // This fills the form at the bottom with the book's current info
+        model.addAttribute("bookForm", existingBook);
+
+        // We keep allBooks as null so the search results disappear and
+        // you can focus on editing the form.
+        model.addAttribute("allBooks", null);
+
         return "manage_book";
     }
 
@@ -79,51 +97,24 @@ public class AdminController {
     }
 
     @PostMapping("/admin/books/add")
-    public String addBook(@RequestParam String title,
-            @RequestParam String author,
-            @RequestParam String isbn,
-            @RequestParam String genre,
-            @RequestParam String language,
-            @RequestParam int publicationYear,
-            @RequestParam double price,
-            @RequestParam String publisher,
-            @RequestParam int pageCount,
-            @RequestParam String type,
-            @RequestParam String status,
-            @RequestParam(defaultValue = "false") boolean isPromo,
+    public String saveBook(@ModelAttribute("bookForm") Book book,
             @RequestParam("file") MultipartFile file) {
 
-        DatabaseManager db = DatabaseManager.getInstance();
-
-        // Simple logic to handle image path
-        String coverUrl = "/images/default.jpg"; // Default
+        // Handle the image upload
         if (!file.isEmpty()) {
-            // In a real app, save the file to disk or cloud
-            coverUrl = "/images/" + file.getOriginalFilename();
+            book.setCoverImageUrl("/images/" + file.getOriginalFilename());
         }
 
-        String sql = "INSERT INTO books (isbn, coverImageUrl, title, author, price, publisher, " +
-                "publicationYear, language, pageCount, type, genre, status, isPromo) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        db.executePrepared(sql,
-                isbn,
-                coverUrl,
-                title,
-                author,
-                price,
-                "Unknown Publisher", // Add this to @RequestParam if you want it dynamic
-                publicationYear,
-                language,
-                pageCount,
-                type,
-                genre,
-                status,
-                isPromo ? 1 : 0);
+        Book bookHelper = new Book();
 
-        // Log action
-        logAction("Added new book: " + title);
+        // If bookID is > 0, it means the book already exists in the DB
+        if (book.getBookID() > 0) {
+            bookHelper.updateBook(book); // Uses your 'updateBook' method in Book.java
+        } else {
+            bookHelper.addBook(book); // Adds a brand new record
+        }
 
-        return "redirect:/admin/dashboard";
+        return "redirect:/admin/books";
     }
 
     // ============================================================

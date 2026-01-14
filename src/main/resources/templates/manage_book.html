@@ -65,6 +65,21 @@
             outline: none;
         }
 
+        /* --- SEARCH PLACEHOLDER WHITE FIX --- */
+        .search-input::placeholder {
+            color: #ffffff !important;
+            opacity: 1;
+        }
+
+        .search-input::-webkit-input-placeholder {
+            color: #ffffff !important;
+            opacity: 1;
+        }
+
+        .search-input::-ms-input-placeholder {
+            color: #ffffff !important;
+        }
+
         .form-field.full-width {
             grid-column: 1 / -1;
         }
@@ -123,36 +138,24 @@
             border: 3px solid #b8a68f;
         }
 
-        /* Placeholder text color */
+        /* General form placeholder color */
         .form-field input::placeholder,
         .form-field textarea::placeholder {
             color: #ffffff;
             opacity: 1;
-            /* ensures full white instead of faded */
-        }
-
-        /* For better browser support */
-        .form-field input::-webkit-input-placeholder,
-        .form-field textarea::-webkit-input-placeholder {
-            color: #ffffff;
-        }
-
-        .form-field input:-ms-input-placeholder,
-        .form-field textarea:-ms-input-placeholder {
-            color: #ffffff;
         }
     </style>
 </head>
 
 <body>
-
     <div class="container">
         <h1>MANAGE BOOK</h1>
         <div class="divider"></div>
+
         <div class="inventory-section" style="margin-bottom: 50px;">
             <form th:action="@{/admin/books}" method="get"
                 style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center;">
-                <input type="text" name="query" th:value="${currentQuery}"
+                <input type="text" name="query" th:value="${currentQuery}" class="search-input"
                     placeholder="Search by Title, Author, or ISBN..."
                     style="flex: 1; max-width: 500px; background-color: #b8a68f; color: white; border-radius: 25px; padding: 12px 20px; border: none; outline: none;">
                 <button type="submit" class="btn-primary" style="width: auto; padding: 10px 30px;">FIND BOOK</button>
@@ -191,7 +194,11 @@
                 </p>
             </div>
         </div>
+
+        <h2 style="text-align: center; color: #b8a68f; font-size: 1.5em; margin-top: 20px;">ADD NEW BOOK</h2>
         <form th:action="@{/admin/books/add}" method="post" enctype="multipart/form-data" th:object="${bookForm}">
+            <input type="hidden" th:field="*{bookID}">
+            <input type="hidden" th:field="*{coverImageUrl}">
             <div class="form-grid">
                 <div class="form-field">
                     <label>TITLE:</label>
@@ -201,7 +208,6 @@
                     <label>AUTHOR:</label>
                     <input type="text" th:field="*{author}" placeholder="Enter author name" required>
                 </div>
-
                 <div class="form-field">
                     <label>ISBN:</label>
                     <input type="text" th:field="*{isbn}" placeholder="Enter ISBN" required>
@@ -217,7 +223,6 @@
                         <option value="History/Science">History/Science</option>
                     </select>
                 </div>
-
                 <div class="form-field">
                     <label>PUBLISHER:</label>
                     <input type="text" th:field="*{publisher}" placeholder="Enter publisher">
@@ -226,7 +231,6 @@
                     <label>PUBLISH YEAR:</label>
                     <input type="number" th:field="*{publicationYear}" placeholder="YYYY">
                 </div>
-
                 <div class="form-field">
                     <label>LANGUAGE:</label>
                     <input type="text" th:field="*{language}" placeholder="e.g. English">
@@ -235,7 +239,6 @@
                     <label>PAGE COUNT:</label>
                     <input type="number" th:field="*{pageCount}" placeholder="0">
                 </div>
-
                 <div class="form-field">
                     <label>PRICE (RM):</label>
                     <input type="number" th:field="*{price}" placeholder="0.00" step="0.01" required>
@@ -247,18 +250,15 @@
                         <option value="Out of Stock">Out of Stock</option>
                     </select>
                 </div>
-
                 <div class="form-field full-width">
                     <label>TYPE (Format):</label>
                     <input type="text" th:field="*{type}" placeholder="e.g. Hardcover, E-Book">
                 </div>
-
                 <div class="form-field">
                     <label>
                         <input type="checkbox" th:field="*{isPromo}"> Mark as Promotion
                     </label>
                 </div>
-
                 <div class="form-field full-width">
                     <label>BOOK COVER:</label>
                     <input type="file" name="file" accept="image/*" onchange="previewBookCover(event)">
@@ -285,7 +285,6 @@
             const preview = document.getElementById('coverPreview');
             const previewImage = document.getElementById('previewImage');
             const fileName = document.getElementById('fileName');
-
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
