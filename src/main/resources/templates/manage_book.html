@@ -148,6 +148,7 @@
 </head>
 
 <body>
+    <input type="hidden" id="successMessage" th:value="${successMsg}">
     <div class="container">
         <h1>MANAGE BOOK</h1>
         <div class="divider"></div>
@@ -279,7 +280,11 @@
         </form>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const msg = document.getElementById('successMessage').value;
+        if (msg) {
+            alert(msg);
+        }
         function previewBookCover(event) {
             const file = event.target.files[0];
             const preview = document.getElementById('coverPreview');

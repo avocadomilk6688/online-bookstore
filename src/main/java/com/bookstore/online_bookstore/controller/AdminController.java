@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -98,7 +99,7 @@ public class AdminController {
 
     @PostMapping("/admin/books/add")
     public String saveBook(@ModelAttribute("bookForm") Book book,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
 
         // Handle the image upload
         if (!file.isEmpty()) {
@@ -106,13 +107,18 @@ public class AdminController {
         }
 
         Book bookHelper = new Book();
+        String message;
 
         // If bookID is > 0, it means the book already exists in the DB
         if (book.getBookID() > 0) {
-            bookHelper.updateBook(book); // Uses your 'updateBook' method in Book.java
+            bookHelper.updateBook(book); // Uses 'updateBook' method in Book.java
+            message = "Book updated successfully!";
         } else {
             bookHelper.addBook(book); // Adds a brand new record
+            message = "New book added successfully!";
         }
+        // Pass the message to the next page
+        redirectAttributes.addFlashAttribute("successMsg", message);
 
         return "redirect:/admin/books";
     }
