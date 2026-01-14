@@ -1,9 +1,12 @@
 package com.bookstore.online_bookstore.controller;
 
 import com.bookstore.online_bookstore.db.DatabaseManager;
+import com.bookstore.online_bookstore.model.Book;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,24 +58,40 @@ public class AdminController {
     // ============================================================
     @GetMapping("/admin/books")
     public String manageBook(Model model) {
-        model.addAttribute("bookForm", new com.bookstore.online_bookstore.model.Book());
+        Book bookHelper = new Book();
+        // Fetch all books from database
+        model.addAttribute("allBooks", bookHelper.getAllBooks());
+
+        // Keep the empty form for adding new books
+        model.addAttribute("bookForm", new Book());
         return "manage_book";
+    }
+
+    // Add the DELETE method
+    @GetMapping("/admin/books/delete/{id}")
+    public String deleteBook(@PathVariable int id) {
+        Book bookHelper = new Book();
+        bookHelper.deleteBook(id);
+
+        logAction("Removed Book ID: " + id);
+
+        return "redirect:/admin/books";
     }
 
     @PostMapping("/admin/books/add")
     public String addBook(@RequestParam String title,
-                      @RequestParam String author,
-                      @RequestParam String isbn,
-                      @RequestParam String genre,
-                      @RequestParam String language,
-                      @RequestParam int publicationYear,
-                      @RequestParam double price,
-                      @RequestParam String publisher,
-                      @RequestParam int pageCount,
-                      @RequestParam String type,
-                      @RequestParam String status,
-                      @RequestParam(defaultValue = "false") boolean isPromo,
-                      @RequestParam("file") MultipartFile file) {
+            @RequestParam String author,
+            @RequestParam String isbn,
+            @RequestParam String genre,
+            @RequestParam String language,
+            @RequestParam int publicationYear,
+            @RequestParam double price,
+            @RequestParam String publisher,
+            @RequestParam int pageCount,
+            @RequestParam String type,
+            @RequestParam String status,
+            @RequestParam(defaultValue = "false") boolean isPromo,
+            @RequestParam("file") MultipartFile file) {
 
         DatabaseManager db = DatabaseManager.getInstance();
 
@@ -84,23 +103,22 @@ public class AdminController {
         }
 
         String sql = "INSERT INTO books (isbn, coverImageUrl, title, author, price, publisher, " +
-                 "publicationYear, language, pageCount, type, genre, status, isPromo) " +
-                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        db.executePrepared(sql, 
-            isbn, 
-            coverUrl, 
-            title, 
-            author, 
-            price, 
-            "Unknown Publisher", // Add this to @RequestParam if you want it dynamic
-            publicationYear, 
-            language, 
-            pageCount, 
-            type, 
-            genre, 
-            status, 
-            isPromo ? 1 : 0
-    );
+                "publicationYear, language, pageCount, type, genre, status, isPromo) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        db.executePrepared(sql,
+                isbn,
+                coverUrl,
+                title,
+                author,
+                price,
+                "Unknown Publisher", // Add this to @RequestParam if you want it dynamic
+                publicationYear,
+                language,
+                pageCount,
+                type,
+                genre,
+                status,
+                isPromo ? 1 : 0);
 
         // Log action
         logAction("Added new book: " + title);
