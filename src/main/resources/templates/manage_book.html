@@ -265,7 +265,15 @@
                 </div>
                 <div class="form-field full-width">
                     <label>BOOK COVER:</label>
+
+                    <div th:if="${bookForm.coverImageUrl != null}" style="margin-bottom: 10px;">
+                        <p style="font-size: 0.8em; color: #666;">Current Cover:</p>
+                        <img th:src="${bookForm.coverImageUrl}" alt="Current Cover"
+                            style="max-width: 100px; border-radius: 5px; border: 2px solid #b8a68f;">
+                    </div>
+
                     <input type="file" name="file" accept="image/*" onchange="previewBookCover(event)">
+
                     <div class="image-preview" id="coverPreview">
                         <img id="previewImage" src="" alt="Preview">
                         <p id="fileName" style="color: #666; font-size: 0.8em;"></p>
