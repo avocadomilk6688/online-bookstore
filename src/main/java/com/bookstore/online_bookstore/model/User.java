@@ -2,6 +2,7 @@ package com.bookstore.online_bookstore.model;
 
 public abstract class User {
     protected int userID;
+    protected String name;
     protected String email;
     protected String password;
     protected String role;       // ADMIN / GUEST / MEMBER
@@ -11,10 +12,11 @@ public abstract class User {
 
     public User() {}
 
-    public User(int userID, String email, String password, String role,
+    public User(int userID, String name,String email, String password, String role,
                 String memberType, String birthDate, String address) {
 
         this.userID = userID;
+        this.name = name;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -26,6 +28,10 @@ public abstract class User {
     // Getters
     public int getUserID() {
         return userID;
+    }
+
+    public String getName() { 
+        return name; 
     }
 
     public String getEmail() {
@@ -77,6 +83,10 @@ public abstract class User {
 
     public void setAddress(String address) { 
         this.address = address; 
+    }
+
+    public void setName(String name) { 
+        this.name = name; 
     }
 }
 

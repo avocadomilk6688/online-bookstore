@@ -13,6 +13,8 @@ public class DatabaseSetup {
             System.err.println("❌ Database connection failed!");
             return;
         }
+    
+        dropTables(db);
 
         db.executeUpdate("PRAGMA foreign_keys = ON");
 
@@ -27,6 +29,7 @@ public class DatabaseSetup {
         createAdminLogTable(db);
 
         insertBooks(db);
+        insertTestData(db);
 
         verifySetup(db);
 
@@ -39,6 +42,7 @@ public class DatabaseSetup {
         db.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS users (
                         userID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT,-- Added for the Profile feature
                         email TEXT UNIQUE NOT NULL,
                         password TEXT NOT NULL,
                         role TEXT CHECK(role IN ('ADMIN','GUEST','MEMBER')) NOT NULL,
@@ -48,6 +52,13 @@ public class DatabaseSetup {
                     )
                 """);
     }
+
+    private static void dropTables(DatabaseManager db) {
+            String[] tables = {"admin_log", "notifications", "discounts", "payments", "order_items", "orders", "cart_items", "shopping_cart", "books", "users"};
+            for (String table : tables) {
+                db.executeUpdate("DROP TABLE IF EXISTS " + table);
+             }
+        }
 
     // ================= BOOKS =================
     private static void createBooksTable(DatabaseManager db) {
@@ -221,6 +232,16 @@ public class DatabaseSetup {
                         FOREIGN KEY (adminID) REFERENCES users(userID)
                     )
                 """);
+    }
+
+    private static void insertTestData(DatabaseManager db) {
+        System.out.println("📥 Inserting test users...");
+    
+        // Create an Admin user
+        db.addUser("admin@bookstore.com", "admin123", "ADMIN","System Admin", "PREMIUM", "1985-05-20", "Admin Office");
+        
+        // Create a Member user
+        db.addUser("member@test.com", "pass123", "MEMBER","Test Member", "STANDARD", "1995-10-10", "456 Library St");
     }
 
     // ================= VERIFY =================

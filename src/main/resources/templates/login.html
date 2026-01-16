@@ -6,7 +6,8 @@
     <title>Login | Bookstore</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     <style>
         body {
             /* Replace the URL below with your actual image path (e.g., /images/library.jpg) */
@@ -29,7 +30,6 @@
             margin-top: 50px;
         }
 
-        /* Glassmorphism Card: Semi-transparent to match background */
         .auth-card {
             max-width: 450px;
             width: 90%;
@@ -80,6 +80,52 @@
             color: #ffffff !important;
             text-decoration: underline;
         }
+
+        .seamless-glass {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px !important; 
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .seamless-glass .form-control, 
+        .seamless-glass .input-group-text {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            color: white !important;
+        }
+        
+        .seamless-glass .input-group-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seamless-glass:focus-within {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .seamless-glass .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group-text {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: none;
+            border-radius: 0.5rem; /* Matches Bootstrap lg input radius */
+        }
+
+        .input-group > .form-control {
+            border-left: none !important;
+            border-right: none !important;
+        }
+
+        .input-group-text i {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -92,17 +138,41 @@
             <h2 class="fw-bold">Login</h2>
         </div>
 
+        <div th:if="${error}" class="alert alert-danger p-2 text-center" 
+             style="background: rgba(255, 0, 0, 0.2); border: none; color: white; font-size: 0.85rem;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${param.registered}" class="alert alert-success p-2 text-center" 
+            style="background: rgba(40, 167, 69, 0.2); border: none; color: white; font-size: 0.85rem;">
+            Registration successful! Please login.
+        </div>
+
         <form th:action="@{/login}" method="post">
             <div class="mb-3">
-                <label class="form-label fw-semibold">Email or User ID</label>
-                <input type="text" name="username" class="form-control form-control-lg" placeholder="Enter Email or ID" required/>
+                <label class="form-label fw-semibold text-white-50 small">Email or User ID</label>
+                <div class="input-group seamless-glass">
+                    <span class="input-group-text border-0 bg-transparent ps-3">
+                        <i class="bi bi-person text-white"></i> </span>
+                    <input type="text" name="username" class="form-control border-0 bg-transparent text-white py-2" 
+                        placeholder="Enter Email" required/>
+                </div>
             </div>
-
             <div class="mb-3">
-                <label class="form-label fw-semibold">Password</label>
-                <input type="password" name="password" class="form-control form-control-lg" placeholder="••••••••" required/>
+                <label class="form-label fw-semibold text-white-50 small">Password</label>
+                <div class="input-group seamless-glass">
+                    <span class="input-group-text border-0 bg-transparent ps-3">
+                        <i class="bi bi-lock text-white"></i>
+                    </span>
+                    <input type="password" name="password" id="loginPassword" 
+                           class="form-control border-0 bg-transparent text-white py-2" 
+                           placeholder="Minimum 6 characters" minlength="6" required/>
+                    <span class="input-group-text border-0 bg-transparent pe-3" 
+                          style="cursor: pointer;" onclick="toggleLoginPassword()">
+                        <i class="bi bi-eye-slash text-white-50" id="toggleIcon"></i>
+                    </span>
+                </div>
             </div>
-
             <div class="mb-4">
                 <label class="form-label fw-semibold">Login As</label>
                 <div class="d-flex gap-3">
@@ -127,4 +197,20 @@
 </div>
 
 </body>
+<script>
+    function toggleLoginPassword() {
+        const passwordField = document.getElementById('loginPassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.replace('bi-eye-slash', 'bi-eye');
+            toggleIcon.classList.replace('text-white-50', 'text-white');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.replace('bi-eye', 'bi-eye-slash');
+            toggleIcon.classList.replace('text-white', 'text-white-50');
+        }
+    }
+</script>
 </html>

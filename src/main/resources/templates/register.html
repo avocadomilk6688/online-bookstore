@@ -6,7 +6,8 @@
     <title>Register | Bookstore</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     <style>
         body {
             /* Keep the background identical to your login page */
@@ -95,25 +96,45 @@
     <div class="reg-card text-start">
         <h2 class="page-title text-center">Create Account</h2>
 
-        <form th:action="@{/customer/register}" method="post">
-            
+        <div th:if="${error}" class="alert alert-danger p-2 text-center" 
+            style="background: rgba(220, 53, 69, 0.2); border: none; color: white; font-size: 0.85rem;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+    <form id="registrationForm" th:action="@{/customer/register}" method="post">            
             <div class="section-divider">Account Credentials</div>
             <div class="row">
+               <div class="col-md-12 mb-3">
+                   <label class="form-label">Name</label>
+                       <input name="name" type="text" class="form-control" placeholder="Enter your full name" required/>
+                   </div>
+                </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Email Address</label>
                     <input name="email" type="email" class="form-control" placeholder="user@example.com" required/>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Password</label>
-                    <input name="password" type="password" class="form-control" placeholder="••••••••" required/>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Confirm Password</label>
-                    <input id="confirm_password" type="password" class="form-control" placeholder="••••••••" required/>
-                    <div id="password_error" class="text-danger small mt-1" style="display:none;">Passwords do not match</div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <input id="password" name="password" type="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required/>
+                    <span class="input-group-text bg-transparent border-start-0" style="cursor: pointer;" onclick="togglePassword('password', 'eyeIcon1')">
+                        <i class="bi bi-eye-slash text-white" id="eyeIcon1"></i>
+                    </span>
                 </div>
             </div>
-
+            <form id="registrationForm" th:action="@{/customer/register}" method="post">
+                <input type="hidden" name="role" value="MEMBER">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input id="confirm_password" name="confirmPassword"type="password" class="form-control" placeholder="Repeat password" required/>
+                    <span class="input-group-text bg-transparent border-start-0" style="cursor: pointer;" onclick="togglePassword('confirm_password', 'eyeIcon2')">
+                        <i class="bi bi-eye-slash text-white" id="eyeIcon2"></i>
+                    </span>
+                </div>
+                <div id="password_error" class="text-danger small mt-1" style="display:none;">Passwords do not match</div>
+            </div>  
             <div class="section-divider">Profile Details</div>
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -142,6 +163,22 @@
     </div>
 </div>
 <script>
+
+    // 1. Password Visibility Toggle Function
+    function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(iconId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.replace('bi-eye-slash', 'bi-eye');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.replace('bi-eye', 'bi-eye-slash');
+        }
+    }
+
+    // 2. Password Matching Logic
     const form = document.getElementById('registrationForm');
     const password = document.getElementById('password');
     const confirm = document.getElementById('confirm_password');
@@ -156,8 +193,10 @@
     });
 
     confirm.addEventListener('input', function() {
-        errorMsg.style.display = 'none';
-        confirm.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        if (password.value === confirm.value) {
+            errorMsg.style.display = 'none';
+            confirm.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        }
     });
 </script>
 

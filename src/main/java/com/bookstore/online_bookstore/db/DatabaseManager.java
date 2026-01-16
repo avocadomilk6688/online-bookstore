@@ -131,68 +131,99 @@ public class DatabaseManager {
     // ============================================================
     // ADD USER
     // ============================================================
-    public void addUser(String email, String password, String role,
+    public void addUser(String email, String password, String role, String name,
             String memberType, String birthDate, String address) {
 
         String sql = """
-                INSERT INTO users (email, password, role, memberType, birthDate, address)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO users (email, password, role, name, memberType, birthDate, address)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
+
+        if (!connect()) return;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
             ps.setString(1, email);
             ps.setString(2, password);
             ps.setString(3, role); // ADMIN / GUEST / MEMBER
-            ps.setString(4, memberType); // STANDARD / PREMIUM
-            ps.setString(5, birthDate); // DATE
-            ps.setString(6, address);
+            ps.setString(4, name);
+            ps.setString(5, memberType); // STANDARD / PREMIUM
+            ps.setString(6, birthDate); // DATE
+            ps.setString(7, address);
 
             ps.executeUpdate();
 
-            System.out.println("✔ User added: " + email);
+            System.out.println("✔ New user registered: " + email);
 
         } catch (SQLException e) {
-            System.err.println("❌ addUser error: " + e.getMessage());
+            System.err.println("❌ Registration Error: " + e.getMessage());
         }
     }
 
     // ADD CUSTOMER (shortcut)
-    public void addCustomer(String email, String password, String memberType, String address) {
-        addUser(email, password, "CUSTOMER", memberType, null, address);
+    public void addCustomer(String email, String password, String name, String memberType, String address) {
+        addUser(email, password, "MEMBER", name, memberType, null, address);
+    }
+    
+    // ============================================================
+    // CHECK EMAIL EXISTS
+    // ============================================================
+    public boolean isEmailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        if (!connect()) return false;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Check Email Error: " + e.getMessage());
+        }
+        return false;
     }
 
     // ============================================================
     // GET USER BY EMAIL
     // ============================================================
     public User getUserByEmail(String email) {
+
+        if (!connect()) return null;
+        
         String sql = "SELECT * FROM users WHERE email = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+            //ResultSet rs = ps.executeQuery();
 
-            String role = rs.getString("role");
+            //String role = rs.getString("role");
 
-            if (role.equals("ADMIN")) {
-                return new Admin(
+            //if (role.equals("ADMIN")) {
+               // return new Admin(
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) { // CRITICAL: Move cursor to the first result
+                String role = rs.getString("role");
+                if ("ADMIN".equals(role)) {
+                    return new Admin(rs.getInt("userID"), rs.getString("name"), rs.getString("email"), rs.getString("password"));
+                } else {
+                    Customer c = new Customer(
                         rs.getInt("userID"),
-                        rs.getString("email"),
-                        rs.getString("password"));
-            } else {
-                return new Customer(
-                        rs.getInt("userID"),
+                        rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("password"),
                         rs.getString("memberType"),
                         rs.getString("birthDate"),
                         rs.getString("address"));
-            }
-
+                        return c;
+             }
+        }
+    }
         } catch (SQLException e) {
             System.err.println("❌ getUserByEmail Error: " + e.getMessage());
-            return null;
         }
+        return null;
     }
 
     // SET LOGGED IN USER
@@ -208,6 +239,27 @@ public class DatabaseManager {
             return (Customer) loggedInUser;
         }
         return null;
+    }
+
+    // ============================================================
+    // UPDATE CUSTOMER PROFILE
+    // ============================================================
+    public void updateCustomerProfile(String email, String name, String birthDate, String address) {
+        String sql = "UPDATE users SET name = ?, birthDate = ?, address = ? WHERE email = ?";
+    
+        if (!connect()) return;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setString(2, birthDate);
+            ps.setString(3, address);
+            ps.setString(4, email);
+        
+            ps.executeUpdate();
+            System.out.println("✔ Profile updated for: " + email);
+        } catch (SQLException e) {
+            System.err.println("❌ Update Profile Error: " + e.getMessage());
+        }
     }
 
     // ============================================================
