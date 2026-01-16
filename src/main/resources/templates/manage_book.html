@@ -153,7 +153,7 @@
         <h1>MANAGE BOOK</h1>
         <div class="divider"></div>
 
-        <div class="inventory-section" style="margin-bottom: 50px;">
+        <div class="inventory-section" style="margin-bottom: 50px;" th:if="${bookForm.bookID == 0}">
             <form th:action="@{/admin/books}" method="get"
                 style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center;">
                 <input type="text" name="query" th:value="${currentQuery}" class="search-input"
@@ -196,7 +196,10 @@
             </div>
         </div>
 
-        <h2 style="text-align: center; color: #b8a68f; font-size: 1.5em; margin-top: 20px;">ADD NEW BOOK</h2>
+        <h2 style="text-align: center; color: #b8a68f; font-size: 1.5em; margin-top: 20px;"
+            th:text="${bookForm.bookID > 0 ? 'MODIFY BOOK' : 'ADD NEW BOOK'}">
+            ADD NEW BOOK
+        </h2>
         <form th:action="@{/admin/books/add}" method="post" enctype="multipart/form-data" th:object="${bookForm}">
             <input type="hidden" th:field="*{bookID}">
             <input type="hidden" th:field="*{coverImageUrl}">
@@ -273,9 +276,13 @@
             <div class="button-group">
                 <div class="button-row">
                     <button type="reset" class="btn-secondary">RESET FORM</button>
-                    <button type="submit" class="btn-primary">ADD BOOK</button>
+                    <button type="submit" class="btn-primary"
+                        th:text="${bookForm.bookID > 0 ? 'SAVE CHANGES' : 'ADD BOOK'}">ADD BOOK</button>
                 </div>
-                <a th:href="@{/admin/dashboard}" class="btn-secondary btn-back">BACK TO DASHBOARD</a>
+                <a th:href="${bookForm.bookID > 0 ? '/admin/books' : '/admin/dashboard'}" class="btn-secondary btn-back"
+                    th:text="${bookForm.bookID > 0 ? 'BACK' : 'BACK TO DASHBOARD'}">
+                    BACK TO DASHBOARD
+                </a>
             </div>
         </form>
     </div>
