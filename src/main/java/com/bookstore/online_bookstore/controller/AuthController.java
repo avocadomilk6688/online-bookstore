@@ -1,6 +1,9 @@
 package com.bookstore.online_bookstore.controller;
 
 import com.bookstore.online_bookstore.model.User;
+
+import jakarta.servlet.http.HttpSession;
+
 import com.bookstore.online_bookstore.db.DatabaseManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,11 +19,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(@RequestParam String username,
-                        @RequestParam String password,
-                        @RequestParam String role,
-                        Model model) {
+            @RequestParam String password,
+            @RequestParam String role,
+            Model model, HttpSession session) {
 
-    User user = DatabaseManager.getInstance().getUserByEmail(username);
+        User user = DatabaseManager.getInstance().getUserByEmail(username);
 
         if (user == null || !user.getPassword().equals(password)) {
             model.addAttribute("error", "Invalid Email or Password");
@@ -28,9 +31,12 @@ public class AuthController {
         }
 
         if (!user.getRole().equalsIgnoreCase(role)) {
-        model.addAttribute("error", "Unauthorized: You do not have " + role + " privileges.");
-        return "login";
+            model.addAttribute("error", "Unauthorized: You do not have " + role + " privileges.");
+            return "login";
         }
+
+        session.setAttribute("adminID", user.getUserID());
+        session.setAttribute("adminName", user.getName());
 
         DatabaseManager.getInstance().setLoggedInUser(user);
 
