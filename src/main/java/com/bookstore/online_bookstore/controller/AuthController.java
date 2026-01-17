@@ -35,6 +35,12 @@ public class AuthController {
             return "login";
         }
 
+        if (user.getRole().equalsIgnoreCase("CUSTOMER")) {
+            session.setAttribute("userID", user.getUserID());
+            session.setAttribute("userName", user.getName());
+            return "redirect:/catalog";
+        }
+
         session.setAttribute("adminID", user.getUserID());
         session.setAttribute("adminName", user.getName());
 
