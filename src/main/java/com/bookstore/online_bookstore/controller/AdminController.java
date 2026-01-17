@@ -3,6 +3,8 @@ package com.bookstore.online_bookstore.controller;
 import com.bookstore.online_bookstore.db.DatabaseManager;
 import com.bookstore.online_bookstore.model.Book;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,8 +81,6 @@ public class AdminController {
         // This fills the form at the bottom with the book's current info
         model.addAttribute("bookForm", existingBook);
 
-        // We keep allBooks as null so the search results disappear and
-        // you can focus on editing the form.
         model.addAttribute("allBooks", null);
 
         return "manage_book";
@@ -88,18 +88,30 @@ public class AdminController {
 
     // Add the DELETE method
     @GetMapping("/admin/books/delete/{id}")
-    public String deleteBook(@PathVariable int id) {
+    public String deleteBook(@PathVariable int id, HttpSession session) {
+        Integer currentAdminId = (Integer) session.getAttribute("adminID");
+        if (currentAdminId == null)
+            currentAdminId = 1;
+
         Book bookHelper = new Book();
         bookHelper.deleteBook(id);
 
-        logAction("Removed Book ID: " + id);
+        logAction(currentAdminId, "Removed Book ID: " + id); // <--- Use session ID
 
         return "redirect:/admin/books";
     }
 
     @PostMapping("/admin/books/add")
     public String saveBook(@ModelAttribute("bookForm") Book book,
-            @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+            @RequestParam("file") MultipartFile file, HttpSession session, RedirectAttributes redirectAttributes) {
+
+        // Retrieve the ID set in the LoginController
+        Integer currentAdminId = (Integer) session.getAttribute("adminID");
+
+        // Fallback in case the session expired
+        if (currentAdminId == null) {
+            currentAdminId = 1;
+        }
 
         // Handle the image upload
         if (!file.isEmpty()) {
@@ -107,18 +119,18 @@ public class AdminController {
         }
 
         Book bookHelper = new Book();
-        String message;
 
         // If bookID is > 0, it means the book already exists in the DB
         if (book.getBookID() > 0) {
-            bookHelper.updateBook(book); // Uses 'updateBook' method in Book.java
-            message = "Book updated successfully!";
+            bookHelper.updateBook(book);
+            // Pass the session ID to your logAction helper
+            logAction(currentAdminId, "Modified Book: " + book.getTitle());
+            redirectAttributes.addFlashAttribute("successMsg", "Book updated successfully!");
         } else {
-            bookHelper.addBook(book); // Adds a brand new record
-            message = "New book added successfully!";
+            bookHelper.addBook(book);
+            logAction(currentAdminId, "Added New Book: " + book.getTitle());
+            redirectAttributes.addFlashAttribute("successMsg", "New book added successfully!");
         }
-        // Pass the message to the next page
-        redirectAttributes.addFlashAttribute("successMsg", message);
 
         return "redirect:/admin/books";
     }
@@ -195,19 +207,20 @@ public class AdminController {
     }
 
     @PostMapping("/admin/orders/update")
-    public String updateOrderStatus(@RequestParam int orderID, @RequestParam String status) {
-        DatabaseManager db = DatabaseManager.getInstance();
+    public String updateOrderStatus(@RequestParam int orderID, @RequestParam String status, HttpSession session) {
+        Integer currentAdminId = (Integer) session.getAttribute("adminID");
+        if (currentAdminId == null)
+            currentAdminId = 1;
 
-        // 1. Update the Status in DB
+        DatabaseManager db = DatabaseManager.getInstance();
         String updateSql = "UPDATE orders SET status = ? WHERE orderID = ?";
         db.executePrepared(updateSql, status, orderID);
 
-        // 2. LOG THE ACTION (Admin Log)
-        logAction("Updated Order #" + orderID + " to " + status);
+        // Use the session ID here
+        logAction(currentAdminId, "Updated Order #" + orderID + " to " + status);
 
         // 3. TRIGGER OBSERVER (Notifications)
-        // We need the UserID to send the notification.
-        // Let's fetch the user ID first to simulate the Observer update.
+        // Need the UserID to send the notification
         String getUserIdSql = "SELECT userID FROM orders WHERE orderID = ?";
         ResultSet rs = db.executeQuery(getUserIdSql, orderID);
         try {
@@ -257,12 +270,10 @@ public class AdminController {
     // ============================================================
     // HELPER: LOG ADMIN ACTION
     // ============================================================
-    private void logAction(String action) {
+    private void logAction(int adminID, String action) {
         DatabaseManager db = DatabaseManager.getInstance();
-        // Assuming Admin ID 1 is the current admin. In a real app, get this from
-        // Security Context.
-        int currentAdminId = 1;
         String sql = "INSERT INTO admin_log (adminID, action) VALUES (?, ?)";
-        db.executePrepared(sql, currentAdminId, action);
+        db.executePrepared(sql, adminID, action);
+        System.out.println("DEBUG: Log saved for Admin " + adminID + " - " + action);
     }
 }
