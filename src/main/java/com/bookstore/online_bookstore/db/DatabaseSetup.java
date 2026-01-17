@@ -66,7 +66,7 @@ public class DatabaseSetup {
         db.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS books (
                         bookID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        isbn TEXT UNIQUE,
+                        bookID TEXT UNIQUE,
                         coverImageUrl TEXT,
                         title TEXT NOT NULL,
                         author TEXT NOT NULL,
@@ -88,7 +88,7 @@ public class DatabaseSetup {
 
         String sql = """
                     INSERT INTO books (
-                        isbn, coverImageUrl, title, author, price, publisher,
+                        bookID, coverImageUrl, title, author, price, publisher,
                         publicationYear, language, pageCount, type, genre, status, isPromo
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
@@ -137,10 +137,10 @@ public class DatabaseSetup {
                     CREATE TABLE IF NOT EXISTS cart_items (
                         cartItemID INTEGER PRIMARY KEY AUTOINCREMENT,
                         cartID INTEGER NOT NULL,
-                        isbn TEXT NOT NULL,
+                        bookID TEXT NOT NULL,
                         quantity INTEGER NOT NULL,
                         FOREIGN KEY (cartID) REFERENCES shopping_cart(cartID),
-                        FOREIGN KEY (isbn) REFERENCES books(isbn)
+                        FOREIGN KEY (bookID) REFERENCES books(bookID)
                     )
                 """);
     }
@@ -168,11 +168,11 @@ public class DatabaseSetup {
                     CREATE TABLE IF NOT EXISTS order_items (
                         orderItemID INTEGER PRIMARY KEY AUTOINCREMENT,
                         orderID INTEGER NOT NULL,
-                        isbn TEXT NOT NULL,
+                        bookID TEXT NOT NULL,
                         quantity INTEGER NOT NULL,
                         price REAL NOT NULL,
                         FOREIGN KEY (orderID) REFERENCES orders(orderID),
-                        FOREIGN KEY (isbn) REFERENCES books(isbn)
+                        FOREIGN KEY (bookID) REFERENCES books(bookID)
                     )
                 """);
     }
