@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Orders | Bookstore</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: 0.2s;
+        }
+
+        .order-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .order-id {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .order-date {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-placed {
+            background: rgba(241, 196, 15, 0.3);
+            color: #f1c40f;
+        }
+
+        .status-shipped {
+            background: rgba(52, 152, 219, 0.3);
+            color: #3498db;
+        }
+
+        .status-out_for_delivery {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        .status-delivered {
+            background: rgba(149, 165, 166, 0.3);
+            color: #bdc3c7;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .order-item-image {
+            width: 45px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+        }
+
+        .order-total {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .payment-method {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        .btn-view {
+            background: rgba(76, 116, 134, 0.8);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .btn-view:hover {
+            background: rgba(76, 116, 134, 1);
+            color: white;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-orders i {
+            font-size: 4rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .btn-shop {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+        }
+
+        .btn-shop:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/catalog}">📚 Bookstore Central</a>
+            <div class="navbar-nav ms-auto gap-3">
+                <a th:href="@{/cart}" class="nav-link"><i class="bi bi-cart3"></i> Cart</a>
+                <a th:href="@{/customer/profile}" class="nav-link">Profile</a>
+                <a th:href="@{/logout}" class="btn btn-outline-light btn-sm rounded-pill px-4">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h1 class="page-header"><i class="bi bi-box-seam me-3"></i>My Orders</h1>
+
+        <!-- Empty State -->
+        <div th:if="${isEmpty}" class="glass-card empty-orders">
+            <i class="bi bi-box"></i>
+            <h4>No orders yet</h4>
+            <p class="opacity-75">Start shopping and your orders will appear here</p>
+            <a th:href="@{/catalog}" class="btn btn-shop mt-3">Start Shopping</a>
+        </div>
+
+        <!-- Order List -->
+        <div th:unless="${isEmpty}">
+            <div th:each="order : ${orders}" class="order-card">
+                <div class="order-header">
+                    <div>
+                        <div class="order-id">Order #<span th:text="${order.orderID}">123</span></div>
+                        <div class="order-date" th:text="${order.orderDate}">2024-01-01</div>
+                    </div>
+                    <span class="status-badge" th:classappend="'status-' + ${order.status.toLowerCase()}"
+                        th:text="${order.statusDisplay}">Status</span>
+                </div>
+
+                <div th:each="item : ${order.items}" class="order-item">
+                    <img th:if="${item.coverImageUrl}" th:src="${item.coverImageUrl}" class="order-item-image">
+                    <div th:unless="${item.coverImageUrl}"
+                        class="order-item-image d-flex align-items-center justify-content-center">
+                        <i class="bi bi-book opacity-50"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold" th:text="${item.title}">Book Title</div>
+                        <div class="small opacity-75">Qty: <span th:text="${item.quantity}">1</span></div>
+                    </div>
+                    <div class="fw-bold" style="color: #f39c12;">RM <span
+                            th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0.00</span></div>
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <div class="order-total">Total: RM <span
+                                th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2)}">0.00</span></div>
+                        <div class="payment-method" th:text="${order.paymentMethodDisplay}">Payment Method</div>
+                    </div>
+                    <a th:href="@{/orders/{id}(id=${order.orderID})}" class="btn-view">View Details</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/catalog}" class="btn btn-link text-white-50"><i class="bi bi-arrow-left me-1"></i>Continue
+                Shopping</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

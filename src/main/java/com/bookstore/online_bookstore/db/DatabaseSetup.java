@@ -13,7 +13,7 @@ public class DatabaseSetup {
             System.err.println("❌ Database connection failed!");
             return;
         }
-    
+
         dropTables(db);
 
         db.executeUpdate("PRAGMA foreign_keys = ON");
@@ -54,11 +54,12 @@ public class DatabaseSetup {
     }
 
     private static void dropTables(DatabaseManager db) {
-            String[] tables = {"admin_log", "notifications", "discounts", "payments", "order_items", "orders", "cart_items", "shopping_cart", "books", "users"};
-            for (String table : tables) {
-                db.executeUpdate("DROP TABLE IF EXISTS " + table);
-             }
+        String[] tables = { "admin_log", "notifications", "discounts", "payments", "order_items", "orders",
+                "cart_items", "shopping_cart", "books", "users" };
+        for (String table : tables) {
+            db.executeUpdate("DROP TABLE IF EXISTS " + table);
         }
+    }
 
     // ================= BOOKS =================
     private static void createBooksTable(DatabaseManager db) {
@@ -176,15 +177,17 @@ public class DatabaseSetup {
                 """);
     }
 
-    // ================= PAYMENTS (COD ONLY) =================
+    // ================= PAYMENTS =================
     private static void createPaymentsTable(DatabaseManager db) {
         db.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS payments (
                         paymentID INTEGER PRIMARY KEY AUTOINCREMENT,
                         orderID INTEGER UNIQUE NOT NULL,
-                        method TEXT CHECK(method = 'COD') NOT NULL,
+                        method TEXT CHECK(method IN ('COD', 'FPX', 'CREDIT_CARD')) NOT NULL,
                         amount REAL NOT NULL,
-                        paymentDate DATETIME,
+                        paymentDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        paymentStatus TEXT CHECK(paymentStatus IN ('PENDING', 'COMPLETED', 'FAILED')) DEFAULT 'PENDING',
+                        transactionRef TEXT,
                         FOREIGN KEY (orderID) REFERENCES orders(orderID)
                     )
                 """);
@@ -236,12 +239,41 @@ public class DatabaseSetup {
 
     private static void insertTestData(DatabaseManager db) {
         System.out.println("📥 Inserting test users...");
-    
+
         // Create an Admin user
-        db.addUser("admin@bookstore.com", "admin123", "ADMIN","System Admin", "PREMIUM", "1985-05-20", "Admin Office");
-        
-        // Create a Member user
-        db.addUser("member@test.com", "pass123", "MEMBER","Test Member", "STANDARD", "1995-10-10", "456 Library St");
+        db.addUser("admin@bookstore.com", "admin123", "ADMIN", "System Admin", "PREMIUM", "1985-05-20", "Admin Office");
+
+        // Create a basic Member user for testing
+        db.addUser("member@test.com", "pass123", "MEMBER", "Test Member", "STANDARD", "1995-10-10", "456 Library St");
+
+        // Note: To test discounts, register new users via the registration page:
+        // - Select PREMIUM membership type for 15% discount
+        // - Enter birthdate between age 7-24 for student discount (10%)
+        // - Add 3+ books to cart for bundle discount (12%)
+
+        // Insert discount configurations
+        insertDiscounts(db);
+    }
+
+    private static void insertDiscounts(DatabaseManager db) {
+        System.out.println("📥 Inserting discount configurations...");
+
+        String sql = "INSERT INTO discounts (discountType, targetValue, percentage, active) VALUES (?, ?, ?, 1)";
+
+        // Premium member discount - 15%
+        db.executePrepared(sql, "PREMIUM_MEMBER", null, 15.0);
+
+        // Student discount (age 7-24) - 10%
+        db.executePrepared(sql, "STUDENT", null, 10.0);
+
+        // Bundle discount (3+ books) - 12%
+        db.executePrepared(sql, "BUNDLE", null, 12.0);
+
+        // Genre-based discounts
+        db.executePrepared(sql, "BOOK_GENRE", "Programming", 8.0);
+        db.executePrepared(sql, "BOOK_GENRE", "Self-Help", 5.0);
+
+        System.out.println("✅ Discount configurations inserted!");
     }
 
     // ================= VERIFY =================
