@@ -4,42 +4,137 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Book | Bookstore Admin</title>
+    
+    <!-- Fonts from 2nd Code -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
     <style>
+        /* --- GLOBAL BODY STYLES (2nd Code Look) --- */
         body {
-            font-family: 'Georgia', serif;
-            background-color: #f5e6d3;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+            
+            /* Background Image & Gradient */
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+
+            /* Center the layout like the dashboard */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* aligns top so scrolling works better */
+            padding: 40px 20px;
         }
 
+        /* --- CONTAINER (Glassmorphism) --- */
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1000px; /* Slightly wider for the table */
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            
+            /* Glass Effect */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 40px;
+            
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         h1 {
             text-align: center;
             font-size: 2.5em;
-            margin: 30px 0;
-            letter-spacing: 2px;
+            margin: 10px 0 30px 0;
+            letter-spacing: 1px;
         }
 
         .divider {
             width: 100%;
-            height: 3px;
-            background-color: #000;
-            margin-bottom: 50px;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
         }
 
+        /* --- SEARCH BAR (Styling from 2nd code) --- */
+        .search-input {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            font-family: 'Poppins', sans-serif !important;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+            opacity: 1;
+        }
+
+        /* --- TABLE STYLING --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+        }
+
+        thead tr {
+            background: rgba(76, 116, 134, 0.8); /* Blue-ish from 2nd code */
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        tbody tr {
+            background: rgba(255, 255, 255, 0.05); /* Slight row tint */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        td {
+            padding: 15px;
+        }
+
+        /* Table Links */
+        a.action-link {
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        
+        a.modify-link { color: #4c7486; } /* Blue tone */
+        a.modify-link:hover { color: #81a5b6; text-decoration: underline; }
+        
+        a.remove-link { color: #f39c12; } /* Orange tone */
+        a.remove-link:hover { color: #ffb74d; text-decoration: underline; }
+
+
+        /* --- FORM GRID & INPUTS --- */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px 50px;
-            margin: 50px auto;
+            gap: 25px 40px;
+            margin: 30px auto;
         }
 
         .form-field {
@@ -48,84 +143,116 @@
         }
 
         .form-field label {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
+        /* Inputs matching the Search Bar style */
         .form-field input,
         .form-field select,
         .form-field textarea {
             padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            background-color: #b8a68f;
-            color: #fff;
-            font-size: 1em;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px; /* Pill shape */
+            color: white;
+            font-size: 0.95em;
+            font-family: 'Poppins', sans-serif;
             outline: none;
+            transition: 0.3s;
         }
 
-        /* --- SEARCH PLACEHOLDER WHITE FIX --- */
-        .search-input::placeholder {
-            color: #ffffff !important;
-            opacity: 1;
+        .form-field input:focus,
+        .form-field select:focus,
+        .form-field textarea:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Textarea needs different radius usually, but keeping consistent pill style for top/bottom or just regular box */
+        .form-field textarea {
+            border-radius: 20px; /* Slightly softer */
+            min-height: 80px;
+            resize: vertical;
         }
 
-        .search-input::-webkit-input-placeholder {
-            color: #ffffff !important;
-            opacity: 1;
-        }
-
-        .search-input::-ms-input-placeholder {
-            color: #ffffff !important;
+        /* Select dropdown styling override for dark mode */
+        .form-field select option {
+            background-color: #2c3e50; /* Dark blue/grey for options */
+            color: white;
         }
 
         .form-field.full-width {
             grid-column: 1 / -1;
         }
 
-        .form-field textarea {
-            border-radius: 20px;
-            min-height: 100px;
+        /* Checkbox styling */
+        .form-field input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+            margin-right: 10px;
+            display: inline-block;
         }
 
+        /* --- BUTTONS (Matching 2nd Code) --- */
         .button-group {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            margin-top: 50px;
+            margin-top: 40px;
         }
 
-        button,
-        .btn-back {
-            width: 350px;
-            padding: 18px 40px;
+        button, .btn-back {
+            width: 300px;
+            padding: 15px 20px;
             border: none;
             border-radius: 30px;
-            font-size: 1.1em;
+            font-size: 1em;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            font-weight: bold;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
+        /* Primary (Blue) */
         .btn-primary {
-            background-color: #b8a68f;
-            color: white;
+            background: rgba(76, 116, 134, 0.8);
+            border: 1px solid rgba(76, 116, 134, 0.9);
+        }
+        .btn-primary:hover {
+            background: rgba(76, 116, 134, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 116, 134, 0.4);
         }
 
+        /* Secondary (Orange) */
         .btn-secondary {
-            background-color: #7a9098;
-            color: white;
+            background: rgba(243, 156, 18, 0.8);
+            border: 1px solid rgba(243, 156, 18, 0.9);
+        }
+        .btn-secondary:hover {
+            background: rgba(243, 156, 18, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
         }
 
         .button-row {
             display: flex;
-            gap: 40px;
+            gap: 20px;
             justify-content: center;
+            width: 100%;
         }
 
+        /* --- IMAGE PREVIEW --- */
         .image-preview {
             margin-top: 15px;
             text-align: center;
@@ -135,14 +262,22 @@
         .image-preview img {
             max-width: 150px;
             border-radius: 10px;
-            border: 3px solid #b8a68f;
+            border: 3px solid rgba(76, 116, 134, 0.8);
         }
 
-        /* General form placeholder color */
-        .form-field input::placeholder,
-        .form-field textarea::placeholder {
-            color: #ffffff;
-            opacity: 1;
+        /* Input type file styling fix */
+        input[type="file"] {
+            padding: 8px 0 !important;
+            background: transparent !important;
+        }
+
+        /* Scrollbar styling for the table container */
+        .inventory-section::-webkit-scrollbar {
+            height: 8px;
+        }
+        .inventory-section::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -153,56 +288,58 @@
         <h1>MANAGE BOOK</h1>
         <div class="divider"></div>
 
+        <!-- Search / Inventory Section -->
         <div class="inventory-section" style="margin-bottom: 50px;" th:if="${bookForm.bookID == 0}">
             <form th:action="@{/admin/books}" method="get"
-                style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center;">
+                style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; align-items: center;">
                 <input type="text" name="query" th:value="${currentQuery}" class="search-input"
                     placeholder="Search by Title, Author, or ISBN..."
-                    style="flex: 1; max-width: 500px; background-color: #b8a68f; color: white; border-radius: 25px; padding: 12px 20px; border: none; outline: none;">
-                <button type="submit" class="btn-primary" style="width: auto; padding: 10px 30px;">FIND BOOK</button>
+                    style="flex: 1; max-width: 500px;">
+                <button type="submit" class="btn-primary" style="width: auto; padding: 12px 30px; border-radius: 50px;">FIND BOOK</button>
             </form>
 
-            <div th:if="${allBooks != null}" style="overflow-x: auto;">
-                <h2 style="text-align: center; color: #b8a68f; font-size: 1.2em; margin-bottom: 20px;">SEARCH RESULTS
+            <div th:if="${allBooks != null}" style="overflow-x: auto; border-radius: 10px;">
+                <h2 style="text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 1.2em; margin-bottom: 20px;">SEARCH RESULTS
                 </h2>
 
-                <table th:if="${not #lists.isEmpty(allBooks)}"
-                    style="width: 100%; border-collapse: collapse; font-family: 'Georgia', serif;">
+                <table th:if="${not #lists.isEmpty(allBooks)}">
                     <thead>
-                        <tr style="background-color: #b8a68f; color: white;">
-                            <th style="padding: 15px; text-align: left;">Title</th>
-                            <th style="padding: 15px; text-align: left;">ISBN</th>
-                            <th style="padding: 15px; text-align: center;">Actions</th>
+                        <tr>
+                            <th>Title</th>
+                            <th>ISBN</th>
+                            <th style="text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="book : ${allBooks}" style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 15px; font-weight: bold;" th:text="${book.title}"></td>
-                            <td style="padding: 15px;" th:text="${book.isbn}"></td>
-                            <td style="padding: 15px; text-align: center;">
+                        <tr th:each="book : ${allBooks}">
+                            <td style="font-weight: bold;" th:text="${book.title}"></td>
+                            <td th:text="${book.isbn}"></td>
+                            <td style="text-align: center;">
                                 <a th:href="@{/admin/books/edit/{id}(id=${book.bookID})}"
-                                    style="color: #b8a68f; text-decoration: none; font-weight: bold; margin-right: 15px;">MODIFY</a>
+                                    class="action-link modify-link" style="margin-right: 20px;">MODIFY</a>
                                 <a th:href="@{/admin/books/delete/{id}(id=${book.bookID})}"
                                     onclick="return confirm('Remove this book?')"
-                                    style="color: #7a9098; text-decoration: none; font-weight: bold;">REMOVE</a>
+                                    class="action-link remove-link">REMOVE</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <p th:if="${#lists.isEmpty(allBooks)}" style="text-align: center; color: #7a9098;">
+                <p th:if="${#lists.isEmpty(allBooks)}" style="text-align: center; color: rgba(255, 255, 255, 0.6);">
                     No book found with that name or ISBN.
                 </p>
             </div>
         </div>
 
-        <h2 style="text-align: center; color: #b8a68f; font-size: 1.5em; margin-top: 20px;"
+        <!-- Add/Modify Form -->
+        <h2 style="text-align: center; color: rgba(255, 255, 255, 0.9); font-size: 1.5em; margin-top: 20px;"
             th:text="${bookForm.bookID > 0 ? 'MODIFY BOOK' : 'ADD NEW BOOK'}">
             ADD NEW BOOK
         </h2>
         <form th:action="@{/admin/books/add}" method="post" enctype="multipart/form-data" th:object="${bookForm}">
             <input type="hidden" th:field="*{bookID}">
             <input type="hidden" th:field="*{coverImageUrl}">
+            
             <div class="form-grid">
                 <div class="form-field">
                     <label>TITLE:</label>
@@ -267,16 +404,16 @@
                     <label>BOOK COVER:</label>
 
                     <div th:if="${bookForm.coverImageUrl != null}" style="margin-bottom: 10px;">
-                        <p style="font-size: 0.8em; color: #666;">Current Cover:</p>
+                        <p style="font-size: 0.8em; color: rgba(255,255,255,0.6);">Current Cover:</p>
                         <img th:src="${bookForm.coverImageUrl}" alt="Current Cover"
-                            style="max-width: 100px; border-radius: 5px; border: 2px solid #b8a68f;">
+                            style="max-width: 100px; border-radius: 5px; border: 2px solid rgba(76, 116, 134, 0.8);">
                     </div>
 
                     <input type="file" name="file" accept="image/*" onchange="previewBookCover(event)">
 
                     <div class="image-preview" id="coverPreview">
                         <img id="previewImage" src="" alt="Preview">
-                        <p id="fileName" style="color: #666; font-size: 0.8em;"></p>
+                        <p id="fileName" style="color: rgba(255,255,255,0.7); font-size: 0.8em;"></p>
                     </div>
                 </div>
             </div>
