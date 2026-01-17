@@ -266,7 +266,7 @@
             <h3>Order Items:</h3>
             <div th:each="item : ${order.items}">
                 <p style="margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
-                    <span th:text="${item.title}" style="font-weight: 600;"></span> (ISBN: <span th:text="${item.isbn}"></span>)<br>
+                    <span th:text="${item.title}" style="font-weight: 600;"></span> (bookID: <span th:text="${item.bookID}"></span>)<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;Quantity: <span th:text="${item.quantity}"></span> × RM<span th:text="${item.price}"></span> = RM<span th:text="${item.quantity * item.price}"></span>
                 </p>
             </div>
