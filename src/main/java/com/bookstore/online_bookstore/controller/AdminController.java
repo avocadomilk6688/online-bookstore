@@ -168,8 +168,8 @@ public class AdminController {
                 }
 
                 // 3. Fetch Order Items
-                String itemsSql = "SELECT order_items.quantity, order_items.price, books.title, books.isbn " +
-                        "FROM order_items JOIN books ON order_items.isbn = books.isbn " +
+                String itemsSql = "SELECT order_items.quantity, order_items.price, books.title, books.bookID " +
+                        "FROM order_items JOIN books ON order_items.bookID = books.bookID " +
                         "WHERE order_items.orderID = ?";
                 ResultSet rsItems = db.executeQuery(itemsSql, orderId);
 
@@ -177,7 +177,7 @@ public class AdminController {
                 while (rsItems != null && rsItems.next()) {
                     Map<String, Object> item = new HashMap<>();
                     item.put("title", rsItems.getString("title"));
-                    item.put("isbn", rsItems.getString("isbn"));
+                    item.put("bookID", rsItems.getString("bookID"));
                     item.put("quantity", rsItems.getInt("quantity"));
                     item.put("price", rsItems.getDouble("price"));
                     itemsList.add(item);
