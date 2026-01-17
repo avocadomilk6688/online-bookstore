@@ -293,7 +293,7 @@
             <form th:action="@{/admin/books}" method="get"
                 style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; align-items: center;">
                 <input type="text" name="query" th:value="${currentQuery}" class="search-input"
-                    placeholder="Search by Title, Author, or ISBN..."
+                    placeholder="Search by Title, Author, or bookID..."
                     style="flex: 1; max-width: 500px;">
                 <button type="submit" class="btn-primary" style="width: auto; padding: 12px 30px; border-radius: 50px;">FIND BOOK</button>
             </form>
@@ -306,14 +306,14 @@
                     <thead>
                         <tr>
                             <th>Title</th>
-                            <th>ISBN</th>
+                            <th>bookID</th>
                             <th style="text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="book : ${allBooks}">
                             <td style="font-weight: bold;" th:text="${book.title}"></td>
-                            <td th:text="${book.isbn}"></td>
+                            <td th:text="${book.bookID}"></td>
                             <td style="text-align: center;">
                                 <a th:href="@{/admin/books/edit/{id}(id=${book.bookID})}"
                                     class="action-link modify-link" style="margin-right: 20px;">MODIFY</a>
@@ -326,7 +326,7 @@
                 </table>
 
                 <p th:if="${#lists.isEmpty(allBooks)}" style="text-align: center; color: rgba(255, 255, 255, 0.6);">
-                    No book found with that name or ISBN.
+                    No book found with that name or bookID.
                 </p>
             </div>
         </div>
@@ -350,8 +350,8 @@
                     <input type="text" th:field="*{author}" placeholder="Enter author name" required>
                 </div>
                 <div class="form-field">
-                    <label>ISBN:</label>
-                    <input type="text" th:field="*{isbn}" placeholder="Enter ISBN" required>
+                    <label>bookID:</label>
+                    <input type="text" th:field="*{bookID}" placeholder="Enter bookID" required>
                 </div>
                 <div class="form-field">
                     <label>GENRE:</label>
