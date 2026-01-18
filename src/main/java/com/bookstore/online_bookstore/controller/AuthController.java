@@ -57,6 +57,7 @@ public class AuthController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
+        DatabaseManager.getInstance().setLoggedInUser(null);
         return "redirect:/login";
     }
 }

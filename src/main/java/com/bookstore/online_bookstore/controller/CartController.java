@@ -23,7 +23,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    public CartController() {
+    public CartController() {DatabaseManager.getInstance().setLoggedInUser(null);
         this.cartService = new CartService();
     }
 
