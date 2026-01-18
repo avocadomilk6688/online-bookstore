@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Update Order Status</title>
-    
+
     <!-- Fonts from 2nd Code -->
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap"
@@ -36,21 +37,23 @@
             width: 100%;
             max-width: 700px;
             margin: 0 auto;
-            
+
             /* Glass Effect */
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         /* --- TYPOGRAPHY --- */
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             font-family: 'Playfair Display', serif;
             color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         h1 {
@@ -77,7 +80,8 @@
             display: flex;
             align-items: center;
             margin-bottom: 30px;
-            justify-content: center; /* Center the input layout */
+            justify-content: center;
+            /* Center the input layout */
         }
 
         .info-row label {
@@ -90,7 +94,7 @@
         }
 
         /* Styling text inputs */
-        .info-row input[type="number"], 
+        .info-row input[type="number"],
         .info-row input[type="text"] {
             flex: 1;
             background: rgba(255, 255, 255, 0.15);
@@ -109,7 +113,7 @@
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
         }
-        
+
         .info-row input::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
@@ -128,15 +132,17 @@
             cursor: pointer;
             max-width: 400px;
         }
-        
+
         .info-row select option {
-            background-color: #2c3e50; /* Dark background for dropdown options */
+            background-color: #2c3e50;
+            /* Dark background for dropdown options */
             color: white;
         }
 
         /* --- ORDER DETAILS BOX --- */
         .order-details {
-            background: rgba(0, 0, 0, 0.3); /* Darker than container for contrast */
+            background: rgba(0, 0, 0, 0.3);
+            /* Darker than container for contrast */
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 30px;
             border-radius: 15px;
@@ -156,11 +162,12 @@
             margin: 10px 0;
             color: rgba(255, 255, 255, 0.9);
         }
-        
+
         .order-details h3 {
             margin-top: 20px;
             font-size: 1.2em;
-            color: rgba(243, 156, 18, 0.9); /* Orange highlight */
+            color: rgba(243, 156, 18, 0.9);
+            /* Orange highlight */
         }
 
         /* --- BUTTONS --- */
@@ -172,8 +179,11 @@
             margin-top: 30px;
         }
 
-        button, a.btn-primary, a.btn-secondary {
-            width: 200px; /* Original width */
+        button,
+        a.btn-primary,
+        a.btn-secondary {
+            width: 200px;
+            /* Original width */
             min-width: 200px;
             padding: 15px 30px;
             border: none;
@@ -188,7 +198,7 @@
             display: inline-block;
             transition: all 0.3s ease;
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         /* Primary (Blue - Matching 2nd Code) */
@@ -229,9 +239,9 @@
             background-color: rgba(255, 255, 255, 0.2);
             margin: 20px 0;
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -260,14 +270,20 @@
             <p><strong>Total Price:</strong> RM<span th:text="${order.totalPrice}"></span></p>
             <p><strong>Delivery Address:</strong> <span th:text="${order.deliveryAddress}"></span></p>
             <p><strong>Order Date:</strong> <span th:text="${order.orderDate}"></span></p>
-            <p><strong>Current Status:</strong> <span th:text="${order.status}" style="color: #f39c12; font-weight: bold;"></span></p>
-            
+            <p><strong>Current Status:</strong> <span th:text="${order.status}"
+                    style="color: #f39c12; font-weight: bold;"></span></p>
+
             <hr>
             <h3>Order Items:</h3>
             <div th:each="item : ${order.items}">
-                <p style="margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
-                    <span th:text="${item.title}" style="font-weight: 600;"></span> (bookID: <span th:text="${item.bookID}"></span>)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;Quantity: <span th:text="${item.quantity}"></span> × RM<span th:text="${item.price}"></span> = RM<span th:text="${item.quantity * item.price}"></span>
+                <p style="margin: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">
+                    <strong th:text="${item.title}">Book Title</strong>
+                    <span style="color: rgba(255,255,255,0.6);" th:text="'(ISBN: ' + ${item.isbn} + ')'"></span><br>
+
+                    <span>Qty: </span><span th:text="${item.quantity}">0</span>
+                    <span> × RM</span><span th:text="${#numbers.formatDecimal(item.price, 1, 2)}">0.00</span>
+                    <span> = RM</span><strong
+                        th:text="${#numbers.formatDecimal(item.quantity * item.price, 1, 2)}">0.00</strong>
                 </p>
             </div>
         </div>
@@ -288,13 +304,14 @@
                 </div>
                 <div class="button-group" style="margin-top: 30px;">
                     <div class="button-row">
-                        <a th:href="@{/admin/dashboard}" class="btn-secondary" style="text-decoration:none; color:white;">CANCEL</a>
+                        <a th:href="@{/admin/dashboard}" class="btn-secondary"
+                            style="text-decoration:none; color:white;">CANCEL</a>
                         <button type="submit" class="btn-primary">UPDATE</button>
                     </div>
                 </div>
             </form>
         </div>
-        
+
         <!-- BACK BUTTON (Always visible) -->
         <div class="button-group" th:unless="${order}">
             <a th:href="@{/admin/dashboard}" class="btn-secondary" style="text-decoration: none; color: white;">BACK</a>
@@ -303,4 +320,5 @@
     </div>
 
 </body>
+
 </html>

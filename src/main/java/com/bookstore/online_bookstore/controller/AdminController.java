@@ -153,23 +153,24 @@ public class AdminController {
             ResultSet rsOrder = db.executeQuery(orderSql, orderId);
 
             if (rsOrder != null && rsOrder.next()) {
-                // 2. Fetch User Details (Customer Name & Email)
+                // 2. Fetch User Details
                 int userID = rsOrder.getInt("userID");
-                String userSql = "SELECT name, email FROM users WHERE userID = ?"; // Assuming 'name' column exists in
-                                                                                   // users
+                String userSql = "SELECT name, email FROM users WHERE userID = ?";
                 ResultSet rsUser = db.executeQuery(userSql, userID);
 
                 String customerName = "Unknown";
                 String userEmail = "Unknown";
 
                 if (rsUser != null && rsUser.next()) {
-                    customerName = rsUser.getString("name"); // Adjust column name if needed (e.g. 'fullName')
+                    customerName = rsUser.getString("name");
                     userEmail = rsUser.getString("email");
                 }
 
-                // 3. Fetch Order Items
-                String itemsSql = "SELECT order_items.quantity, order_items.price, books.title, books.bookID " +
-                        "FROM order_items JOIN books ON order_items.bookID = books.bookID " +
+                // 3. Fetch Order Items (FIXED SQL QUERY)
+                // We MUST add books.isbn here so the result set contains it!
+                String itemsSql = "SELECT order_items.quantity, order_items.price, books.title, books.isbn, books.bookID "
+                        +
+                        "FROM order_items JOIN books ON order_items.isbn = books.isbn " +
                         "WHERE order_items.orderID = ?";
                 ResultSet rsItems = db.executeQuery(itemsSql, orderId);
 
@@ -177,13 +178,14 @@ public class AdminController {
                 while (rsItems != null && rsItems.next()) {
                     Map<String, Object> item = new HashMap<>();
                     item.put("title", rsItems.getString("title"));
-                    item.put("bookID", rsItems.getString("bookID"));
+                    item.put("isbn", rsItems.getString("isbn")); // Use "isbn" as the key
+                    item.put("bookID", rsItems.getInt("bookID")); // Internal ID
                     item.put("quantity", rsItems.getInt("quantity"));
                     item.put("price", rsItems.getDouble("price"));
                     itemsList.add(item);
                 }
 
-                // Construct Order Object (Map) for Thymeleaf
+                // Construct Order Object for Thymeleaf
                 Map<String, Object> order = new HashMap<>();
                 order.put("orderID", rsOrder.getInt("orderID"));
                 order.put("customerName", customerName);
@@ -195,10 +197,7 @@ public class AdminController {
                 order.put("items", itemsList);
 
                 model.addAttribute("order", order);
-            } else {
-                // Order not found logic could go here
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
