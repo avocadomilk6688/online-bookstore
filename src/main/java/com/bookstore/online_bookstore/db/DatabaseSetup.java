@@ -66,7 +66,7 @@ public class DatabaseSetup {
         db.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS books (
                         bookID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        bookID TEXT UNIQUE,
+                        isbn TEXT UNIQUE NOT NULL,
                         coverImageUrl TEXT,
                         title TEXT NOT NULL,
                         author TEXT NOT NULL,
@@ -88,7 +88,7 @@ public class DatabaseSetup {
 
         String sql = """
                     INSERT INTO books (
-                        bookID, coverImageUrl, title, author, price, publisher,
+                        isbn, coverImageUrl, title, author, price, publisher,
                         publicationYear, language, pageCount, type, genre, status, isPromo
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
