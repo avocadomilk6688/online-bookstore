@@ -247,7 +247,14 @@
                     <h1 th:text="${book.title}">Book Title</h1>
                     <p class="fs-5 opacity-75" th:text="'by ' + ${book.author}">Author Name</p>
 
-                    <div class="price-tag" th:text="'RM ' + ${#numbers.formatDecimal(book.price, 1, 2)}">RM 0.00</div>
+                    <div class="price-tag">
+                        <span th:text="'RM ' + ${#numbers.formatDecimal(book.price, 1, 2)}">RM 0.00</span>
+
+                        <span th:if="${book.isPromo}"
+                            style="background: #e74c3c; color: white; font-size: 0.9rem; padding: 2px 8px; border-radius: 5px; margin-left: 10px; vertical-align: middle;">
+                            PROMO
+                        </span>
+                    </div>
 
                     <div class="metadata">
                         <div><strong>ISBN:</strong><span th:text="${book.isbn}"></span></div>

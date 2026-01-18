@@ -251,7 +251,8 @@
                         <a class="dropdown-item text-white" th:href="@{/login}" style="transition: 0.3s;">Login</a>
                     </li>
                     <li th:if="${session.adminID == null && session.userID == null}">
-                        <a class="dropdown-item text-white" th:href="@{/customer/register}" style="transition: 0.3s;">Register</a>
+                        <a class="dropdown-item text-white" th:href="@{/customer/register}"
+                            style="transition: 0.3s;">Register</a>
                     </li>
 
                     <li th:if="${session.adminID != null || session.userID != null}">
@@ -286,9 +287,13 @@
                     <img th:src="@{${book.coverImageUrl}}" alt="Book Cover">
                     <div class="book-title" th:text="${book.title}">Book Title</div>
                     <div class="book-author" th:text="'by ' + ${book.author}">Author Name</div>
-                    <div class="book-price" style="font-weight: 600; color: #f39c12; margin-top: 5px;"
-                        th:text="'RM ' + ${#numbers.formatDecimal(book.price, 1, 2)}">
-                        RM 0.00
+                    <div class="book-price" style="font-weight: 600; color: #f39c12; margin-top: 5px;">
+                        <span th:text="'RM ' + ${#numbers.formatDecimal(book.price, 1, 2)}">RM 0.00</span>
+
+                        <span th:if="${book.isPromo}"
+                            style="color: #e74c3c; font-size: 0.8rem; margin-left: 5px; font-weight: bold;">
+                            (PROMO)
+                        </span>
                     </div>
                     <div class="mt-3">
                         <a th:href="@{/book-details(id=${book.bookID})}" class="btn-details">View Details</a>
