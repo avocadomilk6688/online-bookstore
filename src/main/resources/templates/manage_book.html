@@ -73,17 +73,30 @@
             margin-bottom: 40px;
         }
 
-        /* --- SEARCH BAR (Styling from 2nd code) --- */
         .search-input {
             background: rgba(255, 255, 255, 0.15) !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             color: white !important;
             font-family: 'Poppins', sans-serif !important;
+
+            padding: 18px 25px !important;
+            font-size: 1.1rem !important;
+            border-radius: 50px !important;
         }
 
         .search-input::placeholder {
             color: rgba(255, 255, 255, 0.7) !important;
             opacity: 1;
+        }
+
+        .btn-find {
+            width: auto;
+            padding: 0 40px !important;
+            height: 60px;
+            /* Matching the input's height */
+            border-radius: 50px !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px;
         }
 
         /* --- TABLE STYLING --- */
@@ -321,7 +334,7 @@
                 style="display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; align-items: center;">
                 <input type="text" name="query" th:value="${currentQuery}" class="search-input"
                     placeholder="Search by Title, Author, or bookID..." style="flex: 1; max-width: 500px;">
-                <button type="submit" class="btn-primary"
+                <button type="submit" class="btn-primary btn-find"
                     style="width: auto; padding: 12px 30px; border-radius: 50px;">FIND BOOK</button>
             </form>
 

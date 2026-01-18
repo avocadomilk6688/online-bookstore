@@ -15,6 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +36,10 @@ public class AdminController {
     // 1. ADMIN DASHBOARD
     // ============================================================
     @GetMapping("/admin/dashboard")
-    public String adminDashboard(Model model) {
+    public String adminDashboard(Model model, HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
         DatabaseManager db = DatabaseManager.getInstance();
 
         // A. Data for the UI (Name, ID, Email)
@@ -61,7 +71,11 @@ public class AdminController {
     // 2. MANAGE BOOK PAGE
     // ============================================================
     @GetMapping("/admin/books")
-    public String manageBook(@RequestParam(value = "query", required = false) String query, Model model) {
+    public String manageBook(@RequestParam(value = "query", required = false) String query, Model model,
+            HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
         if (query != null && !query.trim().isEmpty()) {
             Book bookHelper = new Book();
             model.addAttribute("allBooks", bookHelper.searchBooks(query));
@@ -74,7 +88,11 @@ public class AdminController {
     }
 
     @GetMapping("/admin/books/edit/{id}")
-    public String editBook(@PathVariable("id") int id, Model model) {
+    public String editBook(@PathVariable("id") int id, Model model, HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
+
         Book bookHelper = new Book();
         Book existingBook = bookHelper.getBookById(id);
 
@@ -89,6 +107,10 @@ public class AdminController {
     // Add the DELETE method
     @GetMapping("/admin/books/delete/{id}")
     public String deleteBook(@PathVariable int id, HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
+
         Integer currentAdminId = (Integer) session.getAttribute("adminID");
         if (currentAdminId == null)
             currentAdminId = 1;
@@ -103,27 +125,50 @@ public class AdminController {
 
     @PostMapping("/admin/books/add")
     public String saveBook(@ModelAttribute("bookForm") Book book,
-            @RequestParam("file") MultipartFile file, HttpSession session, RedirectAttributes redirectAttributes) {
+            @RequestParam("file") MultipartFile file,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
 
-        // Retrieve the ID set in the LoginController
         Integer currentAdminId = (Integer) session.getAttribute("adminID");
-
-        // Fallback in case the session expired
         if (currentAdminId == null) {
             currentAdminId = 1;
         }
 
-        // Handle the image upload
+        // --- NEW: Physical File Upload Logic ---
         if (!file.isEmpty()) {
-            book.setCoverImageUrl("/images/" + file.getOriginalFilename());
+            try {
+                String fileName = file.getOriginalFilename();
+                // Define where to save the image
+                String uploadDir = "src/main/resources/static/images/";
+                Path uploadPath = Paths.get(uploadDir);
+
+                // Create the directory if it doesn't exist
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // Save the file to the folder
+                try (InputStream inputStream = file.getInputStream()) {
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                // Update the book object with the path for the database
+                book.setCoverImageUrl("/images/" + fileName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                redirectAttributes.addFlashAttribute("errorMsg", "Failed to upload image.");
+            }
         }
 
         Book bookHelper = new Book();
 
-        // If bookID is > 0, it means the book already exists in the DB
         if (book.getBookID() > 0) {
             bookHelper.updateBook(book);
-            // Pass the session ID to your logAction helper
             logAction(currentAdminId, "Modified Book: " + book.getTitle());
             redirectAttributes.addFlashAttribute("successMsg", "Book updated successfully!");
         } else {
@@ -139,7 +184,10 @@ public class AdminController {
     // 3. UPDATE ORDER PAGE
     // ============================================================
     @GetMapping("/admin/orders")
-    public String updateOrderGet() {
+    public String updateOrderGet(HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
         return "update-order";
     }
 
@@ -207,6 +255,10 @@ public class AdminController {
 
     @PostMapping("/admin/orders/update")
     public String updateOrderStatus(@RequestParam int orderID, @RequestParam String status, HttpSession session) {
+        if (session.getAttribute("adminID") == null) {
+            return "redirect:/login";
+        }
+        
         Integer currentAdminId = (Integer) session.getAttribute("adminID");
         if (currentAdminId == null)
             currentAdminId = 1;
