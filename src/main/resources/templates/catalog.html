@@ -283,7 +283,7 @@
 
         <main class="content-area">
             <div class="book-grid">
-                <div class="book-card" th:each="book : ${books}">
+                <div class="book-card" th:each="book : ${books}" th:if="${book.status != 'Out of Stock'}">
                     <img th:src="@{${book.coverImageUrl}}" alt="Book Cover">
                     <div class="book-title" th:text="${book.title}">Book Title</div>
                     <div class="book-author" th:text="'by ' + ${book.author}">Author Name</div>
