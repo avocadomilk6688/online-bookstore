@@ -247,21 +247,20 @@
                 <ul class="dropdown-menu dropdown-menu-end"
                     style="background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
 
-                    <li th:if="${session.adminID == null && session.userID == null}">
-                        <a class="dropdown-item text-white" th:href="@{/login}" style="transition: 0.3s;">Login</a>
+                    <li th:if="${session.userID == null}">
+                        <a class="dropdown-item text-white" th:href="@{/login}">Login</a>
                     </li>
-                    <li th:if="${session.adminID == null && session.userID == null}">
-                        <a class="dropdown-item text-white" th:href="@{/customer/register}"
-                            style="transition: 0.3s;">Register</a>
+                    <li th:if="${session.userID == null}">
+                        <a class="dropdown-item text-white" th:href="@{/customer/register}">Register</a>
                     </li>
 
-                    <li th:if="${session.adminID != null || session.userID != null}">
+                    <li th:if="${session.userID != null}">
                         <a class="dropdown-item text-white" th:href="@{/customer/profile}">My Profile</a>
                     </li>
-                    <li th:if="${session.adminID != null || session.userID != null}">
+                    <li th:if="${session.userID != null}">
                         <hr class="dropdown-divider" style="background-color: rgba(255,255,255,0.2);">
                     </li>
-                    <li th:if="${session.adminID != null || session.userID != null}">
+                    <li th:if="${session.userID != null}">
                         <a class="dropdown-item text-warning" th:href="@{/logout}">Logout</a>
                     </li>
                 </ul>
