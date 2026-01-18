@@ -5,6 +5,8 @@ import com.bookstore.online_bookstore.model.User;
 import jakarta.servlet.http.HttpSession;
 
 import com.bookstore.online_bookstore.db.DatabaseManager;
+
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationProperties.Http;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +55,8 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout() {
+    public String logout(HttpSession session) {
+        session.invalidate();
         return "redirect:/login";
     }
 }
