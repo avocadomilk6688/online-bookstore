@@ -17,12 +17,6 @@ import java.util.Map;
  */
 public class CartService {
 
-    private final PricingService pricingService;
-
-    public CartService() {
-        this.pricingService = new PricingService();
-    }
-
     /**
      * Get shopping cart for a user.
      */
