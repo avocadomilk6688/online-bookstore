@@ -154,14 +154,30 @@ public class Book {
     public void updateBook(Book book) {
         DatabaseManager db = DatabaseManager.getInstance();
         if (db.connect()) {
-            String sql = "UPDATE books SET title=?, author=?, price=?, status=?, isPromo=? WHERE bookID=?";
+            String sql = "UPDATE books SET " +
+                    "isbn=?, coverImageUrl=?, title=?, author=?, price=?, " +
+                    "publisher=?, publicationYear=?, language=?, pageCount=?, " +
+                    "type=?, genre=?, status=?, isPromo=? " +
+                    "WHERE bookID=?";
+
             db.executePrepared(sql,
+                    book.getIsbn(),
+                    book.getCoverImageUrl(),
                     book.getTitle(),
                     book.getAuthor(),
                     book.getPrice(),
+                    book.getPublisher(),
+                    book.getPublicationYear(),
+                    book.getLanguage(),
+                    book.getPageCount(),
+                    book.getType(),
+                    book.getGenre(),
                     book.getStatus(),
-                    book.getIsPromo() ? 1 : 0,
-                    book.getBookID());
+                    book.getIsPromo() ? 1 : 0, // Converts boolean to tinyint/int for DB
+                    book.getBookID() // The ID for the WHERE clause
+            );
+
+            System.out.println("✅ Database updated successfully for Book: " + book.getTitle());
         }
     }
 
