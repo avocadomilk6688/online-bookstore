@@ -215,15 +215,6 @@
 </head>
 
 <body>
-    <div
-        style="background: #e74c3c; color: white; padding: 15px; position: fixed; top: 80px; left: 10px; z-index: 9999; border-radius: 8px; font-family: monospace; border: 2px solid white;">
-        <strong>Debug Session Monitor:</strong><br>
-        - session.userID: <span th:text="${session.userID != null ? session.userID : 'NULL'}"
-            style="font-weight: bold; color: #2ecc71;"></span><br>
-        - session.adminID: <span th:text="${session.adminID != null ? session.adminID : 'NULL'}"
-            style="font-weight: bold; color: #2ecc71;"></span><br>
-        - session exists: <span th:text="${session != null ? 'YES' : 'NO'}"></span>
-    </div>
     <header class="glass-header">
         <div class="d-flex align-items-center">
             <i class="bi bi-list fs-2 me-3" style="cursor: pointer;"></i>
