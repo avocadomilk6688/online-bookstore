@@ -27,30 +27,42 @@ public class AuthController {
 
         User user = DatabaseManager.getInstance().getUserByEmail(username);
 
+        // 1. Check if user exists and password is correct
         if (user == null || !user.getPassword().equals(password)) {
             model.addAttribute("error", "Invalid Email or Password");
             return "login";
         }
 
+        // 2. Check if the role chosen in the dropdown matches the database
         if (!user.getRole().equalsIgnoreCase(role)) {
             model.addAttribute("error", "Unauthorized: You do not have " + role + " privileges.");
             return "login";
         }
 
-        if (user.getRole().equalsIgnoreCase("CUSTOMER")) {
+        // 3. Clear existing session data to prevent role mixing
+        session.removeAttribute("userID");
+        session.removeAttribute("adminID");
+
+        // 4. Role-Based Routing
+        if (user.getRole().equalsIgnoreCase("MEMBER")) {
             session.setAttribute("userID", user.getUserID());
             session.setAttribute("userName", user.getName());
+
+            // Sync the global manager for customer
+            DatabaseManager.getInstance().setLoggedInUser(user);
             return "redirect:/catalog";
+
+        } else if (user.getRole().equalsIgnoreCase("ADMIN")) {
+            // ONLY set adminID if the database confirms they are an ADMIN
+            session.setAttribute("adminID", user.getUserID());
+            session.setAttribute("adminName", user.getName());
+
+            // Sync the global manager for admin
+            DatabaseManager.getInstance().setLoggedInUser(user);
+            return "redirect:/admin/dashboard";
         }
 
-        session.setAttribute("adminID", user.getUserID());
-        session.setAttribute("adminName", user.getName());
-
-        DatabaseManager.getInstance().setLoggedInUser(user);
-
-        if (user.getRole().equals("ADMIN"))
-            return "redirect:/admin/dashboard";
-
+        // Default fallback
         return "redirect:/catalog";
     }
 
