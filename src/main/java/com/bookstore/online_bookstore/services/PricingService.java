@@ -19,7 +19,7 @@ public class PricingService {
 
     public PricingService() {
         this.strategies = new ArrayList<>();
-        
+
         // Register all available strategies here
         strategies.add(new PremiumDiscountStrategy());
         strategies.add(new StudentDiscountStrategy());
@@ -31,8 +31,7 @@ public class PricingService {
             int userID,
             double subtotal,
             String memberType,
-            Map<String, Integer> cartItems
-    ) {
+            Map<String, Integer> cartItems) {
         double bestDiscount = 0.0;
 
         System.out.println("Calculating price for User: " + userID + " | Member: " + memberType);
@@ -40,10 +39,11 @@ public class PricingService {
         // Iterate through every strategy and pick the best discount
         for (DiscountStrategy strategy : strategies) {
             double currentDiscount = strategy.calculate(subtotal, userID, memberType, cartItems);
-            
+
             if (currentDiscount > bestDiscount) {
                 bestDiscount = currentDiscount;
-                System.out.println(" -> Applied: " + strategy.getClass().getSimpleName() + " (Discount: " + currentDiscount + ")");
+                System.out.println(
+                        " -> Applied: " + strategy.getClass().getSimpleName() + " (Discount: " + currentDiscount + ")");
             }
         }
 
@@ -64,12 +64,13 @@ public class PricingService {
 
         @Override
         public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
-            if (!"PREMIUM".equalsIgnoreCase(memberType)) return 0.0;
+            if (!"PREMIUM".equalsIgnoreCase(memberType))
+                return 0.0;
 
             DatabaseManager db = DatabaseManager.getInstance();
-            
+
             String sql = "SELECT percentage FROM discounts WHERE discountType = 'PREMIUM_MEMBER' AND active = 1";
-            
+
             try (ResultSet rs = db.executeQuery(sql)) {
                 if (rs != null && rs.next()) {
                     double percent = rs.getDouble("percentage");
@@ -92,8 +93,16 @@ public class PricingService {
             String userSql = "SELECT birthDate FROM users WHERE userID = ?";
             try (ResultSet rs = db.executeQuery(userSql, userID)) {
                 if (rs != null && rs.next()) {
-                    LocalDate birth = rs.getDate("birthDate").toLocalDate();
+                    // SQLite stores dates as TEXT, so use getString and parse
+                    String birthDateStr = rs.getString("birthDate");
+                    if (birthDateStr == null || birthDateStr.isEmpty()) {
+                        System.out.println("Student discount: No birthDate for user " + userID);
+                        return 0.0;
+                    }
+
+                    LocalDate birth = LocalDate.parse(birthDateStr);
                     int age = Period.between(birth, LocalDate.now()).getYears();
+                    System.out.println("Student discount check: User " + userID + " age = " + age);
 
                     if (age >= 7 && age <= 24) {
                         String discSql = "SELECT percentage FROM discounts WHERE discountType = 'STUDENT' AND active = 1";
@@ -105,8 +114,9 @@ public class PricingService {
                         }
                     }
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 System.err.println("Error calculating Student discount: " + e.getMessage());
+                e.printStackTrace();
             }
             return 0.0;
         }
@@ -125,7 +135,8 @@ public class PricingService {
                 try (ResultSet rsBook = db.executeQuery(bookSql, isbn)) {
                     if (rsBook != null && rsBook.next()) {
                         String genre = rsBook.getString("genre");
-                        if (genre == null) continue;
+                        if (genre == null)
+                            continue;
 
                         String discSql = "SELECT percentage FROM discounts WHERE discountType = 'BOOK_GENRE' AND targetValue = ? AND active = 1";
                         try (ResultSet rsDisc = db.executeQuery(discSql, genre)) {
@@ -150,11 +161,12 @@ public class PricingService {
         @Override
         public double calculate(double subtotal, int userID, String memberType, Map<String, Integer> cartItems) {
             int totalBooks = cartItems.values().stream().mapToInt(i -> i).sum();
-            
-            if (totalBooks < 3) return 0.0;
+
+            if (totalBooks < 3)
+                return 0.0;
 
             DatabaseManager db = DatabaseManager.getInstance();
-            
+
             String sql = "SELECT percentage FROM discounts WHERE discountType = 'BUNDLE' AND active = 1";
             try (ResultSet rs = db.executeQuery(sql)) {
                 if (rs != null && rs.next()) {
