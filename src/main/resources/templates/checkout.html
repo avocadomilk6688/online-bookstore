@@ -345,10 +345,30 @@
                                         th:text="${#numbers.formatDecimal(summary.subtotal, 1, 2)}">0.00</span></span>
                             </div>
 
+                            <!-- Detailed Discount Breakdown -->
+                            <div th:if="${summary.hasDiscount()}" class="discount-breakdown mt-3 mb-3 p-3"
+                                style="background: rgba(243, 156, 18, 0.1); border-radius: 10px; border: 1px solid rgba(243, 156, 18, 0.3);">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-tag-fill text-warning me-2"></i>
+                                    <strong style="color: #f39c12;">Applied Discounts </strong>
+                                </div>
+                                <div class="small" style="padding-left: 1.75rem;">
+                                    <div th:each="discount : ${summary.appliedDiscounts}" class="mb-1"
+                                        style="color: rgba(255, 255, 255, 0.9);">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        <span th:text="${discount.name}">Discount</span>:
+                                        <span class="text-warning">-RM <span
+                                                th:text="${#numbers.formatDecimal(discount.amount, 1, 2)}">0.00</span></span>
+                                        (<span th:text="${#numbers.formatDecimal(discount.percentage, 1, 1)}">0</span>%)
+                                    </div>
+                                </div>
+                            </div>
+
                             <div th:if="${summary.hasDiscount()}" class="price-row discount">
-                                <span>Discount (<span th:text="${summary.discountPercentage}">0%</span>)</span>
-                                <span>- RM <span
-                                        th:text="${#numbers.formatDecimal(summary.discount, 1, 2)}">0.00</span></span>
+                                <span><strong>Total Discount</strong> (<span
+                                        th:text="${summary.discountPercentage}">0%</span>)</span>
+                                <span><strong>- RM <span
+                                            th:text="${#numbers.formatDecimal(summary.discount, 1, 2)}">0.00</span></strong></span>
                             </div>
 
                             <div class="price-row">

@@ -7,6 +7,7 @@ import com.bookstore.online_bookstore.model.ShoppingCart;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +16,6 @@ import java.util.Map;
  * Integrates with PricingService for discount calculations.
  */
 public class CartService {
-
-    private final PricingService pricingService;
-
-    public CartService() {
-        this.pricingService = new PricingService();
-    }
 
     /**
      * Get shopping cart for a user.
@@ -54,8 +49,8 @@ public class CartService {
     }
 
     /**
-     * Prepare checkout summary with discount calculation.
-     * Uses the existing PricingService to calculate discounts.
+     * Prepare checkout summary with STACKED discount calculation.
+     * Calls each discount strategy and combines all applicable discounts.
      */
     public CheckoutSummary prepareCheckout(int userID) {
         ShoppingCart cart = ShoppingCart.getOrCreateCart(userID);
@@ -68,21 +63,56 @@ public class CartService {
         String memberType = getMemberType(userID);
         Map<String, Integer> cartItemsMap = cart.getCartItemsMap();
 
-        // Use PricingService to calculate final price with discounts
-        double finalPrice = pricingService.calculateFinalPrice(
-                userID,
-                subtotal,
-                memberType,
-                cartItemsMap);
+        // Stack all applicable discounts by calling each strategy individually
+        List<AppliedDiscount> appliedDiscounts = new ArrayList<>();
+        double totalDiscount = 0.0;
 
-        double discount = subtotal - finalPrice;
+        // Premium Member Discount
+        PricingService.PremiumDiscountStrategy premium = new PricingService.PremiumDiscountStrategy();
+        double premiumDiscount = premium.calculate(subtotal, userID, memberType, cartItemsMap);
+        if (premiumDiscount > 0) {
+            double percent = (premiumDiscount / subtotal) * 100;
+            appliedDiscounts.add(new AppliedDiscount("Premium Member", percent, premiumDiscount));
+            totalDiscount += premiumDiscount;
+        }
+
+        // Student Discount
+        PricingService.StudentDiscountStrategy student = new PricingService.StudentDiscountStrategy();
+        double studentDiscount = student.calculate(subtotal, userID, memberType, cartItemsMap);
+        if (studentDiscount > 0) {
+            double percent = (studentDiscount / subtotal) * 100;
+            appliedDiscounts.add(new AppliedDiscount("Student Discount", percent, studentDiscount));
+            totalDiscount += studentDiscount;
+        }
+
+        // Bundle Discount
+        PricingService.BundleDiscountStrategy bundle = new PricingService.BundleDiscountStrategy();
+        double bundleDiscount = bundle.calculate(subtotal, userID, memberType, cartItemsMap);
+        if (bundleDiscount > 0) {
+            int bookCount = cartItemsMap.values().stream().mapToInt(i -> i).sum();
+            double percent = (bundleDiscount / subtotal) * 100;
+            appliedDiscounts.add(new AppliedDiscount("Bundle (" + bookCount + " books)", percent, bundleDiscount));
+            totalDiscount += bundleDiscount;
+        }
+
+        // Genre Discount
+        PricingService.GenreDiscountStrategy genre = new PricingService.GenreDiscountStrategy();
+        double genreDiscount = genre.calculate(subtotal, userID, memberType, cartItemsMap);
+        if (genreDiscount > 0) {
+            double percent = (genreDiscount / subtotal) * 100;
+            appliedDiscounts.add(new AppliedDiscount("Genre Discount", percent, genreDiscount));
+            totalDiscount += genreDiscount;
+        }
+
+        double finalPrice = subtotal - totalDiscount;
 
         return new CheckoutSummary(
                 cart.getItems(),
                 subtotal,
-                discount,
+                totalDiscount,
                 finalPrice,
-                memberType);
+                memberType,
+                appliedDiscounts);
     }
 
     /**
@@ -171,6 +201,33 @@ public class CartService {
     }
 
     // ============================================================
+    // APPLIED DISCOUNT - Data container for individual discount
+    // ============================================================
+    public static class AppliedDiscount {
+        private final String name;
+        private final double percentage;
+        private final double amount;
+
+        public AppliedDiscount(String name, double percentage, double amount) {
+            this.name = name;
+            this.percentage = percentage;
+            this.amount = amount;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public double getPercentage() {
+            return percentage;
+        }
+
+        public double getAmount() {
+            return amount;
+        }
+    }
+
+    // ============================================================
     // CHECKOUT SUMMARY - Data container for checkout information
     // ============================================================
     public static class CheckoutSummary {
@@ -179,14 +236,16 @@ public class CartService {
         private final double discount;
         private final double finalPrice;
         private final String memberType;
+        private final List<AppliedDiscount> appliedDiscounts;
 
         public CheckoutSummary(List<CartItem> items, double subtotal, double discount,
-                double finalPrice, String memberType) {
+                double finalPrice, String memberType, List<AppliedDiscount> appliedDiscounts) {
             this.items = items;
             this.subtotal = subtotal;
             this.discount = discount;
             this.finalPrice = finalPrice;
             this.memberType = memberType;
+            this.appliedDiscounts = appliedDiscounts;
         }
 
         public List<CartItem> getItems() {
@@ -207,6 +266,10 @@ public class CartService {
 
         public String getMemberType() {
             return memberType;
+        }
+
+        public List<AppliedDiscount> getAppliedDiscounts() {
+            return appliedDiscounts;
         }
 
         public boolean hasDiscount() {
